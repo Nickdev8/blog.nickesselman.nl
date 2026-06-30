@@ -1,13 +1,10 @@
 <script lang="ts">
 	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
 	import '@splidejs/svelte-splide/css';
-	import ContributionGrid from '$lib/ContributionGrid.svelte';
-	import type { ContributionCalendar } from '$lib/server/githubContributions';
 
 	export let data: {
 		carouselImages: { src: string; isVideo: boolean }[];
 		aboutMeImage: string;
-		contributions?: ContributionCalendar | null;
 	};
 
 	const badges = ['Builder', 'Programmer', 'Nerd'];
@@ -51,14 +48,6 @@
 			</div>
 		</div>
 	</section>
-
-	{#if data.contributions}
-		<ContributionGrid
-			calendar={data.contributions}
-			title="Recent commits"
-			description="Past two years of GitHub pushes"
-		/>
-	{/if}
 
 	{#if data.carouselImages.length > 0}
 		<section class="space-y-4">

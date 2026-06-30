@@ -2,14 +2,10 @@
 	import { browser } from '$app/environment';
 	import { navigating } from '$app/stores';
 	import { onDestroy, onMount, tick } from 'svelte';
-	import TripCommitTimeline from '$lib/TripCommitTimeline.svelte';
 	import ImmichGallery from '$lib/ImmichGallery.svelte';
-	import ContributionGrid from '$lib/ContributionGrid.svelte';
 	import { wrapNoTranslateWords } from '$lib/noTranslate';
 	import { lockBodyScroll, unlockBodyScroll } from '$lib/bodyScrollLock';
 	import { trackReaderEvent } from '$lib/readerTracking';
-	import type { GithubCommit } from '$lib/server/github';
-	import type { ContributionCalendar } from '$lib/server/githubContributions';
 
 	export let data: {
 		posts: {
@@ -33,8 +29,6 @@
 		coverImage: string;
 		content: string;
 		images: string[];
-		showCommitFeed?: boolean;
-		showContributions?: boolean;
 		tripDateRange?: { start?: string; end?: string };
 		immichAlbum?: string;
 		timezone?: string;
@@ -116,24 +110,10 @@
 
 	const totalEntriesLabel = data.posts.length === 1 ? 'entry' : 'entries';
 	$: firstEntryId = journalEntries[0]?.id;
-	const showCommitFeed = data.showCommitFeed ?? false;
-	const showContributions = data.showContributions ?? false;
 	const tripDateRange = data.tripDateRange ?? {};
 	const immichAlbum = data.immichAlbum;
-	const shouldLoadTripTimeline = Boolean(showCommitFeed && tripDateRange.start && tripDateRange.end);
-	const shouldLoadTripContributions = Boolean(showContributions && tripDateRange.start && tripDateRange.end);
 	const timezone = data.timezone || '';
 	const timezoneLabel = data.timezoneLabel || data.timezone || '';
-
-	let tripTimelineSection: HTMLElement | null = null;
-	let tripContributionsSection: HTMLElement | null = null;
-
-	let tripCommits: GithubCommit[] = [];
-	let tripCommitsLoading = false;
-	let tripCommitsError: string | null = null;
-	let tripContributions: ContributionCalendar | null = null;
-	let tripContributionsLoading = false;
-	let tripContributionsError: string | null = null;
 
 	let bannerDismissed = false;
 

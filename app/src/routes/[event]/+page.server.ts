@@ -64,8 +64,6 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 
 	const posts: EventPost[] = [];
-	const showCommitFeed = Boolean(mainData.show_commits);
-
 	for (let i = 1; i < sections.length; i += 2) {
 		const frontmatter = sections[i];
 		let content = sections[i + 1] || '';
@@ -139,7 +137,6 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const startDate = chronologicalPosts[0]?.date;
 	const endDate = chronologicalPosts[chronologicalPosts.length - 1]?.date;
-	const showContributions = Boolean(mainData.show_contributions);
 	const eventLabel = humanizeSlug(eventName);
 	const titleBase = mainData.title || eventLabel;
 	const seoTitle = titleBase.toLowerCase().includes(eventLabel.toLowerCase())
@@ -165,9 +162,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		coverImage: toCdnPath(mainData.coverImage) || '',
 		content: '',
 		images: [],
-		showCommitFeed,
 		tripDateRange: { start: startDate, end: endDate },
-		showContributions,
 		immichAlbum,
 		sortOrder,
 		timezone: mainData.timezone || '',

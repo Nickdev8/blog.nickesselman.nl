@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { fetchContributionCalendar } from '$lib/server/githubContributions';
 import {
 	buildSeo,
 	createAboutPageSchema,
@@ -78,17 +77,12 @@ export async function load() {
 	const aboutMeImages = ['/mainme.webp', '/aboutme-writing.webp', '/aboutme3.webp'];
 	const aboutMeImage = aboutMeImages[Math.floor(Math.random() * aboutMeImages.length)];
 
-	const now = new Date();
-	const from = new Date(now);
-	from.setFullYear(from.getFullYear() - 2);
-	const contributions = await fetchContributionCalendar({ from: from.toISOString(), to: now.toISOString() });
 	const seoDescription =
 		'About Nick Esselman: builder, programmer, and photographer sharing projects, trips, and notes from the road.';
 
 	return {
 		carouselImages,
 		aboutMeImage,
-		contributions,
 		seo: buildSeo({
 			title: 'About Nick',
 			description: seoDescription,
