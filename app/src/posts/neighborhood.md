@@ -6,7 +6,6 @@ warning: "This post is Done"
 warning_type: success
 warning_dismissible: false
 sort_order: 'asc'
-show_contributions: true
 timezone: America/Los_Angeles
 timezone_label: San Francisco
 ---

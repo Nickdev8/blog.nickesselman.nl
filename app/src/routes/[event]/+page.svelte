@@ -335,35 +335,6 @@ let fullscreenMedia: FullscreenMedia = null;
 		fullscreenLocked = false;
 	}
 
-	const setupLazyTrigger = (getNode: () => HTMLElement | null, trigger: () => void) => {
-		if (typeof window === 'undefined') {
-			return () => {};
-		}
-		if (!('IntersectionObserver' in window)) {
-			trigger();
-			return () => {};
-		}
-		const observer = new IntersectionObserver(
-			(entries, obs) => {
-				if (entries.some((entry) => entry.isIntersecting)) {
-					obs.disconnect();
-					trigger();
-				}
-			},
-			{ rootMargin: '200px' }
-		);
-		const watchForNode = () => {
-			const node = getNode();
-			if (node) {
-				observer.observe(node);
-			} else {
-				requestAnimationFrame(watchForNode);
-			}
-		};
-		watchForNode();
-		return () => observer.disconnect();
-	};
-
 	onMount(() => {
 		setInitialActiveEntry();
 		if (browser) {
@@ -534,97 +505,6 @@ let fullscreenMedia: FullscreenMedia = null;
 			{/each}
 		</div>
 	</section>
-
-	{#if showCommitFeed && tripDateRange.start && tripDateRange.end}
-		<div class="mt-10" bind:this={tripTimelineSection}>
-			{#if tripCommitsLoading}
-				<section class="space-y-4 rounded-3xl border border-black/5 bg-white p-6 shadow-sm animate-pulse dark:border-white/10 dark:bg-white/5">
-					<div class="h-5 w-48 rounded bg-gray-200 dark:bg-white/10"></div>
-					<div class="space-y-3">
-						{#each Array(4) as _}
-							<div class="rounded-2xl bg-gray-100 p-4 dark:bg-white/10">
-								<div class="h-3 w-32 rounded bg-gray-200 dark:bg-white/10"></div>
-								<div class="mt-2 h-3 w-56 rounded bg-gray-200 dark:bg-white/10"></div>
-								<div class="mt-2 h-3 w-24 rounded bg-gray-200 dark:bg-white/10"></div>
-							</div>
-						{/each}
-					</div>
-				</section>
-			{:else if tripCommits.length > 0}
-				<TripCommitTimeline commits={tripCommits} eventName={readableTitle} dateRange={tripDateRange} />
-			{:else if tripCommitsError}
-				<section class="rounded-3xl border border-dashed border-red-200 bg-red-50/60 p-6 text-sm text-red-700 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-200">
-					<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<span>{tripCommitsError}</span>
-						<button
-							type="button"
-							class="inline-flex items-center gap-2 rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-600 hover:text-white dark:border-red-400/60 dark:text-red-200 dark:hover:bg-red-400/30"
-							on:click={() => triggerTripCommitsLoad(true)}
-						>
-							Retry
-						</button>
-					</div>
-				</section>
-			{:else}
-				<section class="rounded-3xl border border-dashed border-black/5 bg-white/80 p-6 text-center text-sm text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
-					<div class="flex flex-col items-center gap-3">
-						<p>Load the trip's commit log when you're ready.</p>
-						<button
-							type="button"
-							class="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-gray-900 hover:text-white dark:border-white/40 dark:text-white dark:hover:bg-white/10"
-							on:click={() => triggerTripCommitsLoad(true)}
-						>
-							Show trip commits
-						</button>
-					</div>
-				</section>
-			{/if}
-		</div>
-	{/if}
-
-	{#if showContributions && tripDateRange.start && tripDateRange.end}
-		<div class="mt-8" bind:this={tripContributionsSection}>
-			{#if tripContributionsLoading}
-				<section class="rounded-3xl border border-black/5 bg-white p-6 shadow-sm animate-pulse dark:border-white/10 dark:bg-white/5">
-					<div class="h-4 w-48 rounded bg-gray-200 dark:bg-white/10"></div>
-					<div class="mt-2 h-3 w-72 rounded bg-gray-200 dark:bg-white/10"></div>
-					<div class="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-						{#each Array(8) as _}
-							<div class="h-20 rounded-2xl bg-gray-100 dark:bg-white/10" aria-hidden="true"></div>
-						{/each}
-					</div>
-				</section>
-			{:else if tripContributions}
-				<ContributionGrid calendar={tripContributions} title="Commit heatmap" description="GitHub pushes logged during this trip" />
-			{:else if tripContributionsError}
-				<section class="rounded-3xl border border-dashed border-red-200 bg-red-50/60 p-6 text-sm text-red-700 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-200">
-					<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-						<span>{tripContributionsError}</span>
-						<button
-							type="button"
-							class="inline-flex items-center gap-2 rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 transition hover:-translate-y-0.5 hover:bg-red-600 hover:text-white dark:border-red-400/60 dark:text-red-200 dark:hover:bg-red-400/30"
-							on:click={() => triggerTripContributionsLoad(true)}
-						>
-							Retry
-						</button>
-					</div>
-				</section>
-			{:else}
-				<section class="rounded-3xl border border-dashed border-black/5 bg-white/80 p-6 text-center text-sm text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
-					<div class="flex flex-col items-center gap-3">
-						<p>Load the GitHub heatmap for this trip.</p>
-						<button
-							type="button"
-							class="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-gray-900 hover:text-white dark:border-white/40 dark:text-white dark:hover:bg-white/10"
-							on:click={() => triggerTripContributionsLoad(true)}
-						>
-							Show contributions
-						</button>
-					</div>
-				</section>
-			{/if}
-		</div>
-	{/if}
 
 	<section class="mt-10 space-y-5 lg:space-y-0 lg:grid lg:gap-8 lg:grid-cols-[minmax(0,360px)_1fr]">
 		<nav class="jump-panel sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto self-start rounded-[28px] border border-black/5 bg-white/90 p-5 shadow-[0_18px_38px_rgba(15,23,42,0.1)] dark:border-white/10 dark:bg-white/5 lg:block">
