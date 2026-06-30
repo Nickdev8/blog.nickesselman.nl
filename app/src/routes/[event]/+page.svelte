@@ -335,61 +335,6 @@ let fullscreenMedia: FullscreenMedia = null;
 		fullscreenLocked = false;
 	}
 
-	const loadTripCommits = async () => {
-		if (!shouldLoadTripTimeline) return;
-		tripCommitsLoading = true;
-		tripCommitsError = null;
-		try {
-			const params = new URLSearchParams({
-				from: tripDateRange.start || '',
-				to: tripDateRange.end || '',
-				limit: '15'
-			});
-			const res = await fetch(`/api/github/trip-commits?${params.toString()}`);
-			if (!res.ok) {
-				throw new Error('Failed to fetch trip commits');
-			}
-			const json = await res.json();
-			tripCommits = json?.commits ?? [];
-		} catch (error) {
-			console.error('Error fetching trip commits', error);
-			tripCommitsError = 'Unable to load trip commits right now.';
-			tripCommits = [];
-		} finally {
-			tripCommitsLoading = false;
-		}
-	};
-
-	const loadTripContributions = async () => {
-		if (!shouldLoadTripContributions) return;
-		tripContributionsLoading = true;
-		tripContributionsError = null;
-		const from = tripDateRange.start ? new Date(tripDateRange.start) : null;
-		const to = tripDateRange.end ? new Date(tripDateRange.end) : null;
-		if (!from || !to || Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-			tripContributionsLoading = false;
-			return;
-		}
-		try {
-			const params = new URLSearchParams({
-				from: from.toISOString(),
-				to: to.toISOString()
-			});
-			const res = await fetch(`/api/github/contributions?${params.toString()}`);
-			if (!res.ok) {
-				throw new Error('Failed to fetch trip contributions');
-			}
-			const json = await res.json();
-			tripContributions = json?.contributions ?? null;
-		} catch (error) {
-			console.error('Error fetching trip contributions', error);
-			tripContributionsError = 'Unable to load contributions right now.';
-			tripContributions = null;
-		} finally {
-			tripContributionsLoading = false;
-		}
-	};
-
 	const setupLazyTrigger = (getNode: () => HTMLElement | null, trigger: () => void) => {
 		if (typeof window === 'undefined') {
 			return () => {};
@@ -419,20 +364,6 @@ let fullscreenMedia: FullscreenMedia = null;
 		return () => observer.disconnect();
 	};
 
-	const triggerTripCommitsLoad = (force = false) => {
-		if (!shouldLoadTripTimeline) return;
-		if (tripCommitsLoading) return;
-		if (!force && tripCommits.length > 0) return;
-		loadTripCommits();
-	};
-
-	const triggerTripContributionsLoad = (force = false) => {
-		if (!shouldLoadTripContributions) return;
-		if (tripContributionsLoading) return;
-		if (!force && tripContributions) return;
-		loadTripContributions();
-	};
-
 	onMount(() => {
 		setInitialActiveEntry();
 		if (browser) {
@@ -444,12 +375,6 @@ let fullscreenMedia: FullscreenMedia = null;
 			refreshLocalTime();
 			const id = window.setInterval(refreshLocalTime, 60_000);
 			cleanups.push(() => clearInterval(id));
-		}
-		if (shouldLoadTripTimeline) {
-			cleanups.push(setupLazyTrigger(() => tripTimelineSection, () => triggerTripCommitsLoad()));
-		}
-		if (shouldLoadTripContributions) {
-			cleanups.push(setupLazyTrigger(() => tripContributionsSection, () => triggerTripContributionsLoad()));
 		}
 		if (browser) {
 			window.addEventListener('scroll', handleScroll, { passive: true });
