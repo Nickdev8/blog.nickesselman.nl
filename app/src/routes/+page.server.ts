@@ -9,6 +9,7 @@ import {
 	createItemListSchema,
 	createWebsiteSchema
 } from '$lib/seo';
+import { publicPostSlug } from '$lib/postRoutes';
 
 const CDN_BASE = 'https://cdn.nickesselman.nl';
 const toCdnPath = (src?: string) => {
@@ -39,7 +40,7 @@ export const load: PageServerLoad = async () => {
 		}
 		const latestDate = dateStamps.length ? Math.max(...dateStamps) : 0;
 
-		const slug = filename.replace(/\.md$/, '');
+		const slug = publicPostSlug(filename.replace(/\.md$/, ''));
 
 		return {
 			slug,
@@ -54,14 +55,21 @@ export const load: PageServerLoad = async () => {
 	events.sort((a, b) => (b.latestDate || 0) - (a.latestDate || 0));
 	const liveEvent = events.find((event) => event.live);
 	const seoDescription =
-		'Trip journals, build notes, and long-form travel stories from Nick Esselman.';
+		'Read Nick Esselman’s firsthand travel journals and build notes from Hack Club events, creative projects, and adventures around the world.';
 	const seoImage = liveEvent?.coverImage || events[0]?.coverImage || DEFAULT_OG_IMAGE_PATH;
 
 	return {
 		events,
+		locale: 'en',
 		seo: buildSeo({
+			title: 'Travel Journals & Build Notes',
 			description: seoDescription,
 			pathname: '/',
+			alternates: {
+				en: 'https://blog.nickesselman.nl/',
+				nl: 'https://blog.nickesselman.nl/nl',
+				xDefault: 'https://blog.nickesselman.nl/'
+			},
 			image: seoImage,
 			imageAlt: liveEvent
 				? `Cover image for ${liveEvent.title}`

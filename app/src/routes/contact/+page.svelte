@@ -1,16 +1,7 @@
-<svelte:head>
-	<meta http-equiv="refresh" content="0;url=https://contact.nickesselman.nl/?from=nickesselman.nl" />
-</svelte:head>
+<svelte:head><meta http-equiv="refresh" content="0;url=https://contact.nickesselman.nl/?from=blog.nickesselman.nl" /></svelte:head>
 
-<div class="mx-auto max-w-xl px-6 py-16 text-center">
-	<h1 class="text-3xl font-semibold text-gray-900 dark:text-white">Redirecting to contact.nickesselman.nl</h1>
-	<p class="mt-4 text-base text-gray-600 dark:text-gray-300">
-		The contact form now lives on its own site.
-	</p>
-	<a
-		href="https://contact.nickesselman.nl/?from=nickesselman.nl"
-		class="mt-6 inline-flex rounded-full border border-black/10 px-5 py-3 font-semibold text-gray-900 transition hover:-translate-y-0.5 dark:border-white/10 dark:text-white"
-	>
-		Open the new contact page
-	</a>
-</div>
+<main class="site-container py-20">
+	<h1 class="text-3xl font-semibold tracking-[-0.03em]">Contact has moved</h1>
+	<p class="mt-4 text-[#6f6a61]">You should be redirected automatically.</p>
+	<a href="https://contact.nickesselman.nl/?from=blog.nickesselman.nl" class="mt-6 inline-block border-b border-[#211f1b] pb-1 font-medium">Open the contact page</a>
+</main>

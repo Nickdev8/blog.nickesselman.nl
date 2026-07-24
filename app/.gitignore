@@ -25,6 +25,7 @@ buildcommandlist.txt
 
 */*.webp
 */*.png
+!static/me.webp
 */*.jpg
 */*.jpeg
 /data/

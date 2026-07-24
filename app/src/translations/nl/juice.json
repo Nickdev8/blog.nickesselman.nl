@@ -1,0 +1,46 @@
+{
+  "sourceHash": "4c9fa6e459a996a5703e0a54cd8a70f44eed26b9712fef095a5f2a3aa57c247c",
+  "generatedAt": "2026-07-19T12:20:39.436Z",
+  "title": "China",
+  "description": "Bliksemrecapitulatie van de finale van de Juice-gamejam van Hack Club in Shanghai.",
+  "warning": "Ultrakorte samenvatting: alleen de hoogtepunten.",
+  "entries": [
+    {
+      "title": "Eén week om alles uit te gieten",
+      "blocks": [
+        {
+          "type": "text",
+          "html": "<h2>Pop-up Arcade-energie</h2>"
+        },
+        {
+          "type": "media",
+          "alt": "Landing na de vlucht naar Pudong"
+        },
+        {
+          "type": "text",
+          "html": "<p>Zestig dagen head-down bouwen heeft zijn vruchten afgeworpen: elke tiener die meer dan 100 uur aan een taalloos spel in Juice heeft besteed, verdiende een vlucht naar Shanghai. We propten machines in een geleend café, openden de deuren naar de straat en plotseling waren bijna honderd bouwers Steam-ready projecten aan het demonstreren voor nieuwsgierige vreemden die langs Nanjing Road binnenkwamen.</p>"
+        },
+        {
+          "type": "media",
+          "alt": "Spelers verdringen onze demostations"
+        },
+        {
+          "type": "text",
+          "html": "<h2>Waarom het ertoe doet</h2>\n<p>Hack Club ondersteunde de visa, huisvesting en reiskosten, zodat niemand iets miste, en AdventureX hielp ons lokaal te verankeren.</p>"
+        },
+        {
+          "type": "media",
+          "alt": "Late avondwandeling terug door Huangpu"
+        },
+        {
+          "type": "text",
+          "html": "<p>Gedurende een intense week (4-11 april) hebben we bewezen dat een door tieners geleide jam de oceanen kan oversteken, zonder woorden kan vertalen en toch net zo intiem kan aanvoelen als een LAN-party: kort, krachtig en totaal elektrisch.</p>"
+        },
+        {
+          "type": "media",
+          "alt": "Afsluitend diner met de hele crew"
+        }
+      ]
+    }
+  ]
+}

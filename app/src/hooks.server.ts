@@ -9,7 +9,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	event.locals.isAdmin = Boolean(expectedSignature && cookieSignature === expectedSignature);
 
-	return resolve(event, {
-		filterSerializedResponseHeaders: (name) => name === 'content-type'
+	const language = event.url.pathname === '/nl' || event.url.pathname.startsWith('/nl/') ? 'nl' : 'en';
+	const response = await resolve(event, {
+		filterSerializedResponseHeaders: (name) => name === 'content-type',
+		transformPageChunk: ({ html }) => html.replace('<html lang="en"', `<html lang="${language}"`)
 	});
+	response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+	response.headers.set('x-content-type-options', 'nosniff');
+	response.headers.set('x-frame-options', 'DENY');
+	response.headers.set('permissions-policy', 'camera=(), microphone=(), geolocation=()');
+	if (event.url.protocol === 'https:') {
+		response.headers.set('strict-transport-security', 'max-age=31536000; includeSubDomains');
+	}
+	return response;
 };

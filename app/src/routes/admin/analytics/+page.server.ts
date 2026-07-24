@@ -72,6 +72,8 @@ const isPostViewRow = (row: ReaderRow): row is Extract<ReaderRow, { kind: 'post_
 const isNameRow = (row: ReaderRow): row is Extract<ReaderRow, { kind: 'name' }> => row.kind === 'name';
 const isLanguageRow = (row: ReaderRow): row is Extract<ReaderRow, { kind: 'language' }> =>
 	row.kind === 'language';
+const isNoteRow = (row: ReaderRow): row is Extract<ReaderRow, { kind: 'note' }> =>
+	row.kind === 'note';
 
 const bucketReferrer = (referrer: string, siteOrigin: string) => {
 	const value = referrer.trim();
@@ -111,6 +113,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			referrerCounts: [],
 			languageCounts: [],
 			names: [],
+			notes: [],
 			readerBreakdown: [],
 			visitSeries: []
 		};
@@ -126,6 +129,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const postRows = rows.filter(isPostViewRow);
 	const nameRows = rows.filter(isNameRow);
 	const languageRows = rows.filter(isLanguageRow);
+	const noteRows = rows.filter(isNoteRow);
 
 	const uniqueReaders = new Set(visitRows.map((row) => row.anon_id));
 	const totalVisits = visitRows.length;
@@ -305,6 +309,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		deviceCounts: Array.from(deviceMap.entries()).sort((a, b) => b[1] - a[1]),
 		referrerCounts: Array.from(referrerMap.entries()).sort((a, b) => b[1] - a[1]),
 		languageCounts: Object.entries(languageCounts).sort((a, b) => b[1] - a[1]),
+		notes: noteRows
+			.map((row) => ({
+				id: row.id,
+				event: row.event,
+				storyTitle: titleMap.get(row.event) || row.event,
+				name: row.name,
+				message: row.message,
+				emailStatus: row.email_status,
+				createdAt: row.created_at
+			}))
+			.sort((a, b) => b.createdAt - a.createdAt),
 		names,
 		readerBreakdown: Array.from(readerBreakdownMap.values())
 			.map((reader) => ({

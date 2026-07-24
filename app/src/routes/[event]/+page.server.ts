@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { marked } from 'marked';
-import { error } from '@sveltejs/kit';
-import type { PageServerLoad, EntryGenerator } from './$types';
+import { error, fail, redirect } from '@sveltejs/kit';
+import type { PageServerLoad, EntryGenerator, Actions } from './$types';
 import { env } from '$env/dynamic/private';
 import {
 	buildSeo,
@@ -11,6 +11,9 @@ import {
 	createBreadcrumbSchema,
 	humanizeSlug
 } from '$lib/seo';
+import { getTurnstileSiteKey, savePrivateNote } from '$lib/server/privateNote';
+import { legacyPostRedirect, publicPostSlug, sourcePostSlug } from '$lib/postRoutes';
+import { readDutchTranslation } from '$lib/server/dutchTranslations';
 
 const CDN_BASE = 'https://cdn.nickesselman.nl';
 const toCdnPath = (src?: string) => {
@@ -25,13 +28,16 @@ export const entries: EntryGenerator = () => {
 	const files = fs.readdirSync(postsDir).filter((file) => file.endsWith('.md'));
 
 	return files.map((file) => ({
-		event: file.replace(/\.md$/, '')
+		event: publicPostSlug(file.replace(/\.md$/, ''))
 	}));
 };
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { event } = params;
-	const filePath = path.join('src/posts', `${event}.md`);
+	const legacyRedirect = legacyPostRedirect(event);
+	if (legacyRedirect) throw redirect(308, legacyRedirect);
+	const sourceEventName = sourcePostSlug(event);
+	const filePath = path.join('src/posts', `${sourceEventName}.md`);
 
 	if (!fs.existsSync(filePath)) {
 		throw error(404, 'Not found');
@@ -123,10 +129,10 @@ export const load: PageServerLoad = async ({ params }) => {
 		posts.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 	}
 
-	const extraImagesDir = path.join('static', 'blogimages', eventName, 'extra');
+	const extraImagesDir = path.join('static', 'blogimages', sourceEventName, 'extra');
 	const leftoverImages = fs.existsSync(extraImagesDir)
 		? fs.readdirSync(extraImagesDir).map((file) => ({
-						src: toCdnPath(`/blogimages/${eventName}/extra/${file}`) || '',
+						src: toCdnPath(`/blogimages/${sourceEventName}/extra/${file}`) || '',
 						alt: 'Extra image'
 		  }))
 		: [];
@@ -147,7 +153,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		mainData.description ||
 		`${eventLabel} travel journal with ${posts.length || 'multiple'} ${entryCountLabel} by Nick Esselman.`;
 
-	const envKeyBase = eventName.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase();
+	const envKeyBase = sourceEventName.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase();
 	const scopedImmichEnvKey = `${envKeyBase}_IMMICH_ALBUM_URL`;
 	const envAlbum = env[scopedImmichEnvKey] || env.IMMICH_DEFAULT_ALBUM_URL;
 	const immichAlbum = mainData.immichAlbum || envAlbum || '';
@@ -155,6 +161,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		posts,
 		event,
+		locale: 'en',
 		leftoverImages,
 		banner,
 		title: mainData.title || '',
@@ -171,6 +178,11 @@ export const load: PageServerLoad = async ({ params }) => {
 			title: seoTitle,
 			description: seoDescription,
 			pathname: `/${eventName}`,
+			alternates: {
+				en: `https://blog.nickesselman.nl/${eventName}`,
+				nl: `https://blog.nickesselman.nl/nl/${eventName}`,
+				xDefault: `https://blog.nickesselman.nl/${eventName}`
+			},
 			ogType: 'article',
 			image: toCdnPath(mainData.coverImage),
 			imageAlt: `Cover image for ${seoTitle}`,
@@ -190,11 +202,60 @@ export const load: PageServerLoad = async ({ params }) => {
 					{ name: titleBase, pathname: `/${eventName}` }
 				])
 			]
-		})
+		}),
+		turnstileSiteKey: getTurnstileSiteKey()
 	};
 };
+
+export const actions: Actions = {
+	note: async ({ request, params, fetch, getClientAddress, url }) => {
+		const event = params.event;
+		if (!/^[a-zA-Z0-9_-]+$/.test(event)) return fail(400, { noteError: 'Invalid story.' });
+		const legacyRedirect = legacyPostRedirect(event);
+		if (legacyRedirect) throw redirect(308, legacyRedirect);
+		const filePath = path.join('src/posts', `${sourcePostSlug(event)}.md`);
+		if (!fs.existsSync(filePath)) return fail(404, { noteError: 'Story not found.' });
+
+		const form = await request.formData();
+		if ((form.get('website')?.toString() || '').trim()) return { noteSuccess: true };
+
+		const name = (form.get('name')?.toString() || '').trim();
+		const message = (form.get('message')?.toString() || '').trim();
+		const submittedAnonId = (form.get('readerId')?.toString() || '').trim();
+		const anonId = submittedAnonId || crypto.randomUUID();
+		const turnstileToken = (form.get('cf-turnstile-response')?.toString() || '').trim();
+		const invalid = { noteName: name, noteMessage: message };
+
+		if (!name || name.length > 80) return fail(400, { ...invalid, noteError: 'Please enter a name of 80 characters or fewer.' });
+		if (!message || message.length > 2000) return fail(400, { ...invalid, noteError: 'Please write a note of 2,000 characters or fewer.' });
+		if (anonId.length > 120) return fail(400, { ...invalid, noteError: 'Please refresh the page and try again.' });
+
+		const { data: frontmatter } = matter(fs.readFileSync(filePath, 'utf-8'));
+		const dutchTranslation = url.pathname.startsWith('/nl/') ? readDutchTranslation(event) : null;
+		let remoteIp: string | undefined;
+		try { remoteIp = getClientAddress(); } catch { remoteIp = undefined; }
+
+		const result = await savePrivateNote({
+			name,
+			message,
+			anonId,
+			event,
+			path: url.pathname,
+			storyTitle: dutchTranslation?.title || frontmatter.title || event,
+			turnstileToken,
+			remoteIp
+		}, fetch);
+
+		if (!result.ok) return fail(result.status, { ...invalid, noteError: result.error });
+		return {
+			noteSuccess: true,
+			noteWarning: result.emailStatus === 'failed' ? 'Your note was saved, but the email notification is delayed.' : undefined
+		};
+	}
+};
 const renderMarkdown = (input: string) => {
-	const parsed = marked.parse(input);
+	const nestedHeadings = input.replace(/^##(\s+)/gm, '###$1');
+	const parsed = marked.parse(nestedHeadings);
 	if (typeof parsed === 'string') {
 		return parsed;
 	}

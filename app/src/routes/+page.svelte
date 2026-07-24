@@ -1,112 +1,130 @@
 <script lang="ts">
 	import { navigating } from '$app/stores';
+	import { cdnImageSrcset } from '$lib/cdnImages';
 	import { wrapNoTranslateWords } from '$lib/noTranslate';
 
 	export let data: {
+		locale?: 'en' | 'nl';
+		translationPending?: boolean;
 		events: {
 			slug: string;
 			title: string;
 			description: string;
 			coverImage: string;
 			live: boolean;
+			latestDate: number;
 		}[];
 	} = { events: [] };
 
 	const posts = data.events ?? [];
-	const heroYear = new Date().getFullYear();
-	const livePost = posts.find((post) => post.live);
+	const isDutch = data.locale === 'nl';
+	const copy = isDutch
+		? {
+			title: 'Verhalen van onderweg',
+			intro: 'Reisdagboeken en bouwverslagen, geschreven terwijl het gebeurde.',
+			empty: 'Er zijn nog geen verhalen openbaar.',
+			live: 'Live dagboek',
+			journal: 'Dagboek',
+			read: 'Lees het verhaal',
+			more: 'Meer verhalen'
+		}
+		: {
+			title: 'Stories from the road',
+			intro: 'Travel journals and build notes, written as they happened.',
+			empty: 'No stories are public yet.',
+			live: 'Live journal',
+			journal: 'Journal',
+			read: 'Read the story',
+			more: 'More stories'
+		};
+	const leadPost = posts[0];
+	const remainingPosts = posts.slice(1);
+	const dateFormatter = new Intl.DateTimeFormat(isDutch ? 'nl' : 'en', { month: 'long', year: 'numeric' });
+	const formatDate = (value: number) => (value ? dateFormatter.format(new Date(value)) : copy.journal);
+	const postHref = (slug: string) => `${isDutch ? '/nl' : ''}/${slug}`;
+	const isVideo = (src: string) => src.toLowerCase().endsWith('.mp4');
 </script>
 
 {#if $navigating}
-	<main class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:max-w-7xl">
-		<section class="space-y-3">
-			<div class="h-3 w-40 rounded-full bg-gray-200/70 dark:bg-white/10 animate-pulse"></div>
-			<div class="h-8 w-3/5 rounded-full bg-gray-200/80 dark:bg-white/10 animate-pulse"></div>
-			<div class="h-4 w-2/3 rounded-full bg-gray-200/70 dark:bg-white/10 animate-pulse"></div>
-		</section>
-		<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each Array(6) as _}
-				<li class="overflow-hidden rounded-3xl border border-black/5 bg-white/90 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-white/5">
-					<div class="h-40 rounded-2xl bg-gray-200/70 dark:bg-white/10 animate-pulse"></div>
-					<div class="mt-4 space-y-2">
-						<div class="h-3 w-24 rounded-full bg-gray-200/70 dark:bg-white/10 animate-pulse"></div>
-						<div class="h-5 w-3/4 rounded-full bg-gray-200/80 dark:bg-white/10 animate-pulse"></div>
-						<div class="h-3 w-full rounded-full bg-gray-200/60 dark:bg-white/10 animate-pulse"></div>
-					</div>
-				</li>
-			{/each}
-		</ul>
+	<main class="site-container py-12 sm:py-16">
+		<div class="h-7 w-64 animate-pulse bg-[#e5e0d6]"></div>
+		<div class="mt-4 h-4 w-full max-w-xl animate-pulse bg-[#e5e0d6]"></div>
+		<div class="mt-10 aspect-[16/8] animate-pulse bg-[#e5e0d6]"></div>
 	</main>
 {:else}
-	<main class="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:max-w-7xl">
-		<section class="space-y-2 text-gray-900 dark:text-white">
-			<p class="text-xs uppercase tracking-[0.35em] text-gray-500 dark:text-gray-400">
-				Trip journals · {heroYear}
+	<main class="site-container py-12 sm:py-16">
+		{#if isDutch && data.translationPending}
+			<p class="mb-8 border-y border-[#d8d2c7] py-3 text-sm leading-6 text-[#6f6a61]">
+				De Nederlandse vertaling is nog niet gegenereerd. De verhalen worden voorlopig in het Engels getoond.
 			</p>
-			<h1 class="text-4xl font-semibold leading-tight">Stories from the road</h1>
-			<p class="max-w-2xl text-sm text-gray-600 dark:text-gray-300">
-				Everything I'm doing lands here. quick scraps, day-by-day play-by-plays, and the longer stories from what I'm building and wandering through.
+		{/if}
+		<header class="max-w-2xl border-b border-[#d8d2c7] pb-8">
+			<h1 class="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">{copy.title}</h1>
+			<p class="mt-3 max-w-xl text-base leading-7 text-[#6f6a61]">
+				{copy.intro}
 			</p>
-			{#if livePost}
-				<a
-					href={`/${livePost.slug}`}
-					class="mt-4 inline-flex items-center gap-2 rounded-full border border-green-500/40 bg-green-500/10 px-4 py-2 text-sm font-semibold text-green-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-green-500/20 dark:border-green-400/40 dark:text-green-200"
-				>
-					<span class="inline-flex size-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(74,222,128,0.8)]"></span>
-					<span>Live now: {@html wrapNoTranslateWords(livePost.title)}</span>
-				</a>
-			{/if}
-		</section>
+		</header>
 
-
-		{#if posts.length === 0}
-			<section class="rounded-3xl border border-dashed border-black/10 bg-white/70 p-10 text-center text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
-				<p class="text-lg font-semibold">No trips are public yet.</p>
-				<p class="mt-2 text-sm">New entries will show up here as soon as I publish them.</p>
-			</section>
+		{#if !leadPost}
+			<p class="py-16 text-[#6f6a61]">{copy.empty}</p>
 		{:else}
-			<ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-				{#each posts as post}
-					<li class="group overflow-hidden rounded-3xl border border-black/5 bg-white/95 shadow-[0_18px_40px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/5">
-						<a href={`/${post.slug}`} class="flex h-full flex-col">
-							{#if post.coverImage}
-								<div class="relative h-48 overflow-hidden border-b border-black/5 bg-black/5 dark:border-white/10 dark:bg-white/10">
-									{#if post.coverImage.endsWith('.mp4')}
-										<video src={post.coverImage} muted playsinline loop class="h-full w-full object-cover"></video>
-									{:else}
-										<img src={post.coverImage} alt={post.title} class="h-full w-full object-cover" loading="lazy" />
-									{/if}
-						<span
-							class={`absolute left-4 top-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.35em] ${post.live ? 'bg-green-500/90 text-white shadow-[0_8px_20px_rgba(34,197,94,0.45)]' : 'bg-black/70 text-white'}`}
-						>
-							{post.live ? '● Live' : 'Archived'}
-						</span>
-								</div>
-							{/if}
-							<div class="flex flex-1 flex-col gap-3 px-5 py-6 text-gray-900 dark:text-white">
-								<div>
-									<p class="text-xs uppercase tracking-[0.35em] text-gray-500 dark:text-gray-400">{post.slug}</p>
-									<h2 class="mt-2 text-2xl font-semibold">{@html wrapNoTranslateWords(post.title)}</h2>
-								</div>
-								<p class="text-sm text-gray-600 dark:text-gray-300">{post.description}</p>
-								<span class="mt-auto inline-flex w-fit items-center gap-2 text-sm font-semibold text-blue-700 transition group-hover:gap-3 dark:text-blue-200">
-									Continue reading ➜
-								</span>
+			<section class="py-10 sm:py-14" aria-labelledby="latest-story">
+				<a href={postHref(leadPost.slug)} class="group grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,0.75fr)] lg:items-end">
+					<div class="overflow-hidden bg-[#e5e0d6]">
+						{#if isVideo(leadPost.coverImage)}
+							<video src={leadPost.coverImage} muted playsinline loop autoplay preload="metadata" class="aspect-[16/9] w-full object-cover"></video>
+						{:else}
+							<img
+								src={leadPost.coverImage}
+								srcset={cdnImageSrcset(leadPost.coverImage)}
+								alt=""
+								fetchpriority="high"
+								decoding="async"
+								sizes="(min-width: 1024px) 70vw, 100vw"
+								class="aspect-[16/9] w-full object-cover opacity-95 transition-opacity duration-200 group-hover:opacity-100"
+							/>
+						{/if}
+					</div>
+					<div class="border-t border-[#d8d2c7] pt-4 lg:border-t-0 lg:pt-0">
+						<p class="text-sm text-[#6f6a61]">{leadPost.live ? copy.live : formatDate(leadPost.latestDate)}</p>
+						<h2 id="latest-story" class="mt-2 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+							{@html wrapNoTranslateWords(leadPost.title)}
+						</h2>
+						<p class="mt-4 leading-7 text-[#5f5a52]">{leadPost.description}</p>
+						<span class="mt-6 inline-block border-b border-[#211f1b] pb-1 text-sm font-medium">{copy.read}</span>
+					</div>
+				</a>
+			</section>
+
+			{#if remainingPosts.length > 0}
+				<section class="border-t border-[#d8d2c7]" aria-label={copy.more}>
+					{#each remainingPosts as post}
+						<a href={postHref(post.slug)} class="group grid gap-5 border-b border-[#d8d2c7] py-7 sm:grid-cols-[220px_1fr_auto] sm:items-center lg:grid-cols-[300px_1fr_auto]">
+							<div class="overflow-hidden bg-[#e5e0d6]">
+								{#if isVideo(post.coverImage)}
+									<video src={post.coverImage} muted playsinline loop preload="none" class="aspect-[3/2] w-full object-cover"></video>
+								{:else}
+									<img
+										src={post.coverImage}
+										srcset={cdnImageSrcset(post.coverImage)}
+										alt=""
+										loading="lazy"
+										decoding="async"
+										sizes="(min-width: 1024px) 300px, (min-width: 640px) 220px, 100vw"
+										class="aspect-[3/2] w-full object-cover opacity-90 transition-opacity duration-200 group-hover:opacity-100"
+									/>
+								{/if}
 							</div>
+							<div>
+								<p class="text-sm text-[#6f6a61]">{post.live ? copy.live : formatDate(post.latestDate)}</p>
+								<h2 class="mt-1 text-2xl font-semibold tracking-[-0.025em]">{@html wrapNoTranslateWords(post.title)}</h2>
+								<p class="mt-2 max-w-2xl leading-7 text-[#5f5a52]">{post.description}</p>
+							</div>
+							<span class="hidden text-xl text-[#6f6a61] sm:block" aria-hidden="true">→</span>
 						</a>
-					</li>
-				{/each}
-			</ul>
+					{/each}
+				</section>
+			{/if}
 		{/if}
 	</main>
 {/if}
-
-<style>
-	:global(body) {
-		background: #f7f5f2;
-	}
-
-	:global(.dark body) {
-		background: #05060a;
-	}
-</style>

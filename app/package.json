@@ -3,8 +3,9 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite --host 127.0.0.1",
-		"build": "vite build",
+		"dev": "node scripts/run-with-translations.mjs node_modules/vite/bin/vite.js --host 127.0.0.1",
+		"build": "node scripts/generate-dutch-translations.mjs && vite build",
+		"translate:nl": "node scripts/generate-dutch-translations.mjs",
 		"preview": "vite preview",
 		"sync": "svelte-kit sync",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
@@ -34,8 +35,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@splidejs/splide": "^4.1.4",
-		"@splidejs/svelte-splide": "^0.2.9",
 		"gray-matter": "^4.0.3",
 		"leaflet": "^1.9.4",
 		"lucide-svelte": "^0.533.0",

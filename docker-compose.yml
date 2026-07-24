@@ -23,6 +23,8 @@ services:
       SMTP_PASSWORD: "${SMTP_PASSWORD}"
       EMAIL_FROM: "${EMAIL_FROM}"
       EMAIL_TO: "${EMAIL_TO}"
+      PUBLIC_TURNSTILE_SITE_KEY: "${PUBLIC_TURNSTILE_SITE_KEY}"
+      TURNSTILE_SECRET_KEY: "${TURNSTILE_SECRET_KEY}"
     working_dir: /app
     volumes:
       - ./app/src/posts:/app/src/posts

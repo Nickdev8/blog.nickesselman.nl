@@ -18,6 +18,7 @@ const toCdnPath = (src: string) => {
 
 const POSTS_DIR = path.join(process.cwd(), 'src', 'posts');
 const mediaRegex = /!\[[^\]]*?\]\(([^)]+)\)/g;
+const supportedMedia = /\.(?:avif|gif|jpe?g|png|webp|mp4|webm|mov)(?:[?#].*)?$/i;
 
 const collectPostMedia = () => {
 	if (!fs.existsSync(POSTS_DIR)) return [];
@@ -40,7 +41,9 @@ const collectPostMedia = () => {
 		}
 	}
 
-	const unique = Array.from(new Set(media));
+	const unique = Array.from(new Set(media)).filter(
+		(src) => (/^https?:\/\//i.test(src) || src.startsWith('/')) && supportedMedia.test(src)
+	);
 	return unique.map((src) => ({
 		src: toCdnPath(src),
 		isVideo: src.toLowerCase().endsWith('.mp4')
@@ -74,8 +77,7 @@ export async function load() {
 	const mediaPool = allMedia.length > 0 ? allMedia : fallbackMedia;
 	const carouselImages = shuffle(mediaPool).slice(0, 24);
 
-	const aboutMeImages = ['/mainme.webp', '/aboutme-writing.webp', '/aboutme3.webp'];
-	const aboutMeImage = aboutMeImages[Math.floor(Math.random() * aboutMeImages.length)];
+	const aboutMeImage = '/me.webp';
 
 	const seoDescription =
 		'About Nick Esselman: builder, programmer, and photographer sharing projects, trips, and notes from the road.';
@@ -83,22 +85,28 @@ export async function load() {
 	return {
 		carouselImages,
 		aboutMeImage,
+		locale: 'en',
 		seo: buildSeo({
 			title: 'About Nick',
 			description: seoDescription,
 			pathname: '/about',
+			alternates: {
+				en: 'https://blog.nickesselman.nl/about',
+				nl: 'https://blog.nickesselman.nl/nl/about',
+				xDefault: 'https://blog.nickesselman.nl/about'
+			},
 			ogType: 'profile',
-			image: '/mainme.webp',
+			image: '/me.webp',
 			imageAlt: 'Portrait of Nick Esselman',
 			structuredData: [
 				createAboutPageSchema({
 					description: seoDescription,
 					pathname: '/about',
-					image: '/mainme.webp'
+					image: '/me.webp'
 				}),
 				createPersonSchema({
 					description: seoDescription,
-					image: '/mainme.webp'
+					image: '/me.webp'
 				}),
 				createBreadcrumbSchema([
 					{ name: 'Home', pathname: '/' },

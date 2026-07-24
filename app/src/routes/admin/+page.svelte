@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { navigating } from '$app/stores';
 	import type { ActionData, PageData } from './$types';
+	import { publicPostSlug } from '$lib/postRoutes';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -90,7 +91,7 @@
 						<div class="editor__status">
 							<a
 								class="ghost-link"
-								href={`/${data.selectedSlug}`}
+								href={`/${publicPostSlug(data.selectedSlug)}`}
 								target="_blank"
 								rel="noreferrer"
 							>

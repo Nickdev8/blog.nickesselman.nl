@@ -249,6 +249,27 @@
 		</section>
 
 		<section class="section">
+			<h2>Private reader notes</h2>
+			{#if data.notes.length === 0}
+				<p class="muted">No private notes yet.</p>
+			{:else}
+				<div class="notes-list">
+					{#each data.notes as note}
+						<article class="note">
+							<div class="note-meta">
+								<strong>{note.name}</strong>
+								<span>{note.storyTitle}</span>
+								<span>{formatDate(note.createdAt)}</span>
+								<span class:delivery-failed={note.emailStatus === 'failed'}>{note.emailStatus}</span>
+							</div>
+							<p>{note.message}</p>
+						</article>
+					{/each}
+				</div>
+			{/if}
+		</section>
+
+		<section class="section">
 			<h2>Readers</h2>
 			{#if data.names.length === 0}
 				<p class="muted">No names submitted yet.</p>
@@ -385,6 +406,40 @@
 
 	.chart-hit {
 		cursor: pointer;
+	}
+
+	.notes-list {
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.note {
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	.note p {
+		margin: 0.8rem 0 0;
+		white-space: pre-wrap;
+		line-height: 1.6;
+	}
+
+	.note-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.55);
+	}
+
+	.note-meta strong {
+		color: #f3f4f6;
+	}
+
+	.delivery-failed {
+		color: rgb(255, 128, 128);
 	}
 
 	.eyebrow {

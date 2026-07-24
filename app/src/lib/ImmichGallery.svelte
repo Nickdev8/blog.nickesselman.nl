@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let shareUrl: string = '';
+	export let locale: 'en' | 'nl' | undefined = 'en';
 	// Legacy props kept for older embeds.
 	export let title: string | undefined = undefined;
 	export let description: string | undefined = undefined;
@@ -19,12 +20,16 @@
 
 	let valid = false;
 	$: valid = Boolean(shareUrl && shareUrl.startsWith('http'));
+	$: isDutch = locale === 'nl';
 
 	let assets: GalleryAsset[] = [];
 	let loading = false;
 	let errorMessage = '';
 	let abortController: AbortController | null = null;
 	let fullscreenAsset: GalleryAsset | null = null;
+	let section: HTMLElement;
+	let shouldLoad = false;
+	let loadedUrl = '';
 
 	const parseError = async (response: Response) => {
 		try {
@@ -76,15 +81,30 @@
 		}
 	};
 
-	$: if (browser) {
+	$: if (browser && shouldLoad && loadedUrl !== shareUrl) {
 		if (!valid) {
 			assets = [];
 			errorMessage = '';
 			loading = false;
 		} else {
+			loadedUrl = shareUrl;
 			void fetchGallery(shareUrl);
 		}
 	}
+
+	onMount(() => {
+		if (!valid || !section) return;
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (!entry.isIntersecting) return;
+				shouldLoad = true;
+				observer.disconnect();
+			},
+			{ rootMargin: '600px 0px' }
+		);
+		observer.observe(section);
+		return () => observer.disconnect();
+	});
 
 	onDestroy(() => {
 		abortController?.abort();
@@ -100,22 +120,20 @@
 </script>
 
 {#if valid}
-	<section class="mt-12 rounded-[32px] border border-black/5 bg-white/95 p-6 shadow-[0_25px_60px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-white/5">
-		<p class="mb-4 text-xs uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">
-			Images from my Immich album
-		</p>
-		{#if loading}
-			<p class="text-sm text-gray-600 dark:text-gray-300">Loading shared photos…</p>
+	<section bind:this={section} class="site-container mt-16 min-h-24 border-t border-[#d8d2c7] pt-8" aria-labelledby="immich-gallery-title">
+		<h2 id="immich-gallery-title" class="mb-5 text-2xl font-semibold tracking-[-0.03em]">{isDutch ? 'Gedeeld album' : 'Shared album'}</h2>
+		{#if !shouldLoad || loading}
+			<p class="text-sm text-[#6f6a61]">{isDutch ? 'Gedeelde foto’s laden…' : 'Loading shared photos…'}</p>
 		{:else if errorMessage}
-			<p class="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
+			<p class="text-sm text-[#8b3f32]">{errorMessage}</p>
 		{:else if assets.length === 0}
-			<p class="text-sm text-gray-600 dark:text-gray-400">No shared media is available yet.</p>
+			<p class="text-sm text-[#6f6a61]">{isDutch ? 'Er zijn nog geen gedeelde media beschikbaar.' : 'No shared media is available yet.'}</p>
 		{:else}
-			<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+			<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
 				{#each assets as asset (asset.id)}
 					<button
 						type="button"
-						class="group relative overflow-hidden rounded-3xl border border-black/5 bg-white/80 shadow-sm transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-black/40 dark:border-white/10 dark:bg-white/10"
+						class="group relative aspect-square overflow-hidden border-0 bg-[#e5e0d6] p-0 focus:outline-none"
 						on:click={() => openFullscreen(asset)}
 						aria-label={`Open ${asset.alt || 'media'} fullscreen`}
 					>
@@ -127,6 +145,7 @@
 								autoplay
 								loop
 								playsinline
+								preload="none"
 								class="pointer-events-none block h-full w-full object-cover"
 							>
 								<track kind="captions" />
@@ -136,7 +155,9 @@
 								src={asset.previewUrl}
 								alt={asset.alt}
 								loading="lazy"
-								class="block h-full w-full object-cover transition duration-200 group-hover:scale-[1.02]"
+								decoding="async"
+								sizes="(min-width: 768px) 33vw, 50vw"
+								class="block h-full w-full object-cover opacity-95 transition-opacity duration-200 group-hover:opacity-100"
 							/>
 						{/if}
 					</button>
@@ -147,7 +168,7 @@
 
 	{#if fullscreenAsset}
 		<div
-			class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="immich-fullscreen-title"
@@ -160,7 +181,7 @@
 						controls
 						playsinline
 						autoplay
-						class="h-auto max-h-[85vh] w-auto max-w-[95vw] rounded-3xl"
+						class="h-auto max-h-[90vh] w-auto max-w-[95vw]"
 					>
 						<track kind="captions" />
 					</video>
@@ -168,14 +189,14 @@
 					<img
 						src={fullscreenAsset.originalUrl || fullscreenAsset.previewUrl}
 						alt={fullscreenAsset.alt}
-						class="h-auto max-h-[85vh] w-auto max-w-[95vw] rounded-3xl"
+						class="h-auto max-h-[90vh] w-auto max-w-[95vw]"
 						loading="eager"
 					/>
 				{/if}
 				<button
-					class="absolute right-2 top-2 size-10 rounded-full bg-black/60 text-2xl text-white shadow-lg transition hover:bg-black"
+					class="absolute right-2 top-2 size-10 border border-white/60 bg-black text-2xl text-white"
 					on:click={closeFullscreen}
-					aria-label="Close fullscreen media"
+					aria-label={isDutch ? 'Sluit media op volledig scherm' : 'Close fullscreen media'}
 				>
 					×
 				</button>
