@@ -36,6 +36,17 @@ export type ReaderRow =
 			path: string;
 			percent: number;
 			created_at: number;
+	  }
+	| {
+			kind: 'note';
+			id: string;
+			anon_id: string;
+			event: string;
+			path: string;
+			name: string;
+			message: string;
+			email_status: 'pending' | 'sent' | 'failed';
+			created_at: number;
 	  };
 
 export type ReaderDB = { rows: ReaderRow[] };

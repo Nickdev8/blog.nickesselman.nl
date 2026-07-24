@@ -2,6 +2,9 @@ app/node_modules
 app/.svelte-kit
 app/build
 app/.vite
+app/.env
+app/.env.*
+!app/.env.example
 .git
 .gitignore
 Dockerfile

@@ -1,0 +1,554 @@
+{
+	"/blogimages/juice/ariveatairport.jpg": {
+		"width": 1707,
+		"height": 1280
+	},
+	"/blogimages/juice/foodwithall.jpg": {
+		"width": 836,
+		"height": 627
+	},
+	"/blogimages/juice/main.webp": {
+		"width": 4000,
+		"height": 2250
+	},
+	"/blogimages/juice/nightsky.jpg": {
+		"width": 3900,
+		"height": 2613
+	},
+	"/blogimages/juice/peploleplayingourgaem.jpg": {
+		"width": 4096,
+		"height": 3072
+	},
+	"/blogimages/juice/randomstreet.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/juice/startingpresentation.jpg": {
+		"width": 4032,
+		"height": 3024
+	},
+	"/blogimages/juice/walkingtovenue.jpg": {
+		"width": 4000,
+		"height": 3000
+	},
+	"/blogimages/moonshot/14decinthesunprogramming.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/moonshot/21deconthebeaches.JPG": {
+		"width": 5152,
+		"height": 3864
+	},
+	"/blogimages/moonshot/22deconthebeach.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/moonshot/23decnickwithcamera.jpg": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/moonshot/24decairplanetojfk.JPG": {
+		"width": 5152,
+		"height": 3864
+	},
+	"/blogimages/moonshot/24inmetrojfk.JPG": {
+		"width": 5152,
+		"height": 3864
+	},
+	"/blogimages/moonshot/24lastdayaftermovie.JPG": {
+		"width": 5152,
+		"height": 3864
+	},
+	"/blogimages/moonshot/cover.png": {
+		"width": 2172,
+		"height": 1440
+	},
+	"/blogimages/moonshot/deliverierobotsatnight.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/moonshot/homedepot.png": {
+		"width": 1920,
+		"height": 1440
+	},
+	"/blogimages/moonshot/ikbijraket.png": {
+		"width": 900,
+		"height": 1600
+	},
+	"/blogimages/moonshot/littlehavaana.png": {
+		"width": 1440,
+		"height": 1920
+	},
+	"/blogimages/moonshot/newyork.png": {
+		"width": 1440,
+		"height": 1920
+	},
+	"/blogimages/moonshot/nickontargetsroof.JPG": {
+		"width": 3864,
+		"height": 2898
+	},
+	"/blogimages/moonshot/placeholder.webp": {
+		"width": 8560,
+		"height": 1673
+	},
+	"/blogimages/moonshot/rocketlaunch.png": {
+		"width": 843,
+		"height": 1205
+	},
+	"/blogimages/moonshot/shoproof.png": {
+		"width": 1080,
+		"height": 1920
+	},
+	"/blogimages/moonshot/walkingonrails.png": {
+		"width": 1440,
+		"height": 1920
+	},
+	"/blogimages/neighborhood/applevision.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/applevision.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/atlinkedinagian.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/extra/chockletprinter.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/githubgrapic.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/githubhqpanorrama3.webp": {
+		"width": 8364,
+		"height": 1574
+	},
+	"/blogimages/neighborhood/extra/goldendridge.webp": {
+		"width": 6976,
+		"height": 1599
+	},
+	"/blogimages/neighborhood/extra/groupphoto.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/extra/inflightback.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/extra/oriclepark.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/playingmarioatbestbuy.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/stickers.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/streetview.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/extra/tryingcloths.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/extra/vibe.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/extra/writingonmybed.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/frozenpizza.png": {
+		"width": 1600,
+		"height": 1204
+	},
+	"/blogimages/neighborhood/frozenpizza.webp": {
+		"width": 1600,
+		"height": 1204
+	},
+	"/blogimages/neighborhood/gamesonfloor.png": {
+		"width": 2048,
+		"height": 1536
+	},
+	"/blogimages/neighborhood/gamesonfloor.webp": {
+		"width": 2048,
+		"height": 1536
+	},
+	"/blogimages/neighborhood/githubhqpanorrama1.png": {
+		"width": 3730,
+		"height": 1623
+	},
+	"/blogimages/neighborhood/githubhqpanorrama1.webp": {
+		"width": 3730,
+		"height": 1623
+	},
+	"/blogimages/neighborhood/hackclubinpineconed.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/hackclubinpineconed.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/interviewqiththomas.png": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/interviewqiththomas.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/laptopinopenroom.png": {
+		"width": 2268,
+		"height": 2659
+	},
+	"/blogimages/neighborhood/laptopinopenroom.webp": {
+		"width": 2268,
+		"height": 2659
+	},
+	"/blogimages/neighborhood/lastpic.png": {
+		"width": 2616,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/lastpic.webp": {
+		"width": 2616,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/linkedin.png": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/linkedin.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/linkeditagain.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/linkeditagain.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/mariocard.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/mariocard.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/midnightprogramming.png": {
+		"width": 2160,
+		"height": 3840
+	},
+	"/blogimages/neighborhood/midnightprogramming.webp": {
+		"width": 2160,
+		"height": 3840
+	},
+	"/blogimages/neighborhood/morningwalk.png": {
+		"width": 6176,
+		"height": 1597
+	},
+	"/blogimages/neighborhood/morningwalk.webp": {
+		"width": 6176,
+		"height": 1597
+	},
+	"/blogimages/neighborhood/morningwalkv2.png": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/morningwalkv2.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/neighborhood/noicebridgepanorama.png": {
+		"width": 8846,
+		"height": 1611
+	},
+	"/blogimages/neighborhood/noicebridgepanorama.webp": {
+		"width": 8846,
+		"height": 1611
+	},
+	"/blogimages/neighborhood/openworkspace.png": {
+		"width": 1080,
+		"height": 1920
+	},
+	"/blogimages/neighborhood/openworkspace.webp": {
+		"width": 1080,
+		"height": 1920
+	},
+	"/blogimages/neighborhood/panorama.png": {
+		"width": 8560,
+		"height": 1673
+	},
+	"/blogimages/neighborhood/panorama.webp": {
+		"width": 8560,
+		"height": 1673
+	},
+	"/blogimages/neighborhood/panorama4thofjuly.png": {
+		"width": 8496,
+		"height": 1672
+	},
+	"/blogimages/neighborhood/panorama4thofjuly.webp": {
+		"width": 8496,
+		"height": 1672
+	},
+	"/blogimages/neighborhood/pier.png": {
+		"width": 8170,
+		"height": 1580
+	},
+	"/blogimages/neighborhood/pier.webp": {
+		"width": 8170,
+		"height": 1580
+	},
+	"/blogimages/neighborhood/planeride.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/planeride.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/pokernight.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/pokernight.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/populated.webp": {
+		"width": 1920,
+		"height": 1080
+	},
+	"/blogimages/neighborhood/programming.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/programming.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/salesforcepark.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/salesforcepark.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/starbucks.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/starbucks.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/target.png": {
+		"width": 2268,
+		"height": 2639
+	},
+	"/blogimages/neighborhood/target.webp": {
+		"width": 2268,
+		"height": 2639
+	},
+	"/blogimages/neighborhood/temporairypeople.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/temporairypeople.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/train.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/train.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/neighborhood/uno.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/uno.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/wedobeworking.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/neighborhood/wedobeworking.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/shipwrecked/beatch.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/breakfast%20by%20the%20hostel.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/campfire.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/campfiremain.jpg": {
+		"width": 3264,
+		"height": 1836
+	},
+	"/blogimages/shipwrecked/first%20meal%20in%20the%20island.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/group%20making%20towers.png": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/morestickers.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/nightlifecoastline.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/opening%20ceremony.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/orphius%20plushy.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/parneelonthecoutch.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/placeholder.webp": {
+		"width": 1219,
+		"height": 694
+	},
+	"/blogimages/shipwrecked/planepicture.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/sunrise.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/the%20pier.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/shipwrecked/waiting%20on%20the%20boat.jpg": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/shipwrecked/zachs%20workshop.jpg": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/dogersvssanfransico.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/3dprinter.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/3dprinterdemo.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/allthehardware.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/everyonewatching.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/finalpresentation.webp": {
+		"width": 4032,
+		"height": 3024
+	},
+	"/blogimages/undercity/extra/grouppussle.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/hardware.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/undercity/extra/paperclipandzach.webp": {
+		"width": 2320,
+		"height": 1740
+	},
+	"/blogimages/undercity/extra/picwithpaoankei.webp": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/undercity/extra/renren.webp": {
+		"width": 4032,
+		"height": 3024
+	},
+	"/blogimages/undercity/extra/sanfransicohonkball.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/sshsecuretyguard.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/startpressetasion.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/stickers.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/extra/zachp5ofap5.webp": {
+		"width": 2268,
+		"height": 4032
+	},
+	"/blogimages/undercity/githubroof.png": {
+		"width": 7840,
+		"height": 1590
+	},
+	"/blogimages/undercity/githubroof.webp": {
+		"width": 7840,
+		"height": 1590
+	},
+	"/blogimages/undercity/group.webp": {
+		"width": 2046,
+		"height": 710
+	},
+	"/blogimages/undercity/morningdemo.webp": {
+		"width": 4032,
+		"height": 2268
+	},
+	"/blogimages/undercity/zackpig.png": {
+		"width": 3840,
+		"height": 2160
+	},
+	"/blogimages/undercity/zackpig.webp": {
+		"width": 3840,
+		"height": 2160
+	}
+}

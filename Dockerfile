@@ -12,10 +12,12 @@ FROM node:20-bookworm AS runtime
 WORKDIR /app
 COPY --from=builder /work/node_modules ./node_modules
 COPY --from=builder /work/build ./build
+COPY --from=builder /work/scripts ./scripts
 COPY app/src/posts ./src/posts
+COPY app/src/translations ./src/translations
 COPY app/static ./static
 RUN mkdir -p /app/data
 ENV HOST=0.0.0.0
 ENV PORT=3000
 EXPOSE 3000
-CMD ["node", "build"]
+CMD ["node", "scripts/run-with-translations.mjs", "build/index.js"]

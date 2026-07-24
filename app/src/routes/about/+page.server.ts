@@ -3,10 +3,12 @@ import path from 'path';
 import matter from 'gray-matter';
 import {
 	buildSeo,
-	createAboutPageSchema,
 	createBreadcrumbSchema,
-	createPersonSchema
+	createPersonSchema,
+	createProfilePageSchema
 } from '$lib/seo';
+import { getStoryMetadata, resolveMediaOverride } from '$lib/storyMetadata';
+import { publicPostSlug } from '$lib/postRoutes';
 
 const CDN_BASE = 'https://cdn.nickesselman.nl';
 const toCdnPath = (src: string) => {
@@ -17,11 +19,12 @@ const toCdnPath = (src: string) => {
 };
 
 const POSTS_DIR = path.join(process.cwd(), 'src', 'posts');
-const mediaRegex = /!\[[^\]]*?\]\(([^)]+)\)/g;
+const mediaRegex = /!\[([^\]]*?)\]\(([^)]+)\)/g;
+const supportedMedia = /\.(?:avif|gif|jpe?g|png|webp|mp4|webm|mov)(?:[?#].*)?$/i;
 
 const collectPostMedia = () => {
 	if (!fs.existsSync(POSTS_DIR)) return [];
-	const media: string[] = [];
+	const media: { src: string; alt: string; isVideo: boolean }[] = [];
 	const files = fs.readdirSync(POSTS_DIR).filter((file) => file.endsWith('.md'));
 
 	for (const file of files) {
@@ -30,21 +33,46 @@ const collectPostMedia = () => {
 		const sections = content.split('---').filter((s) => s.trim());
 		const mainFMRaw = sections[0] || '';
 		const mainData = matter(`---\n${mainFMRaw}\n---`).data || {};
+		const slug = publicPostSlug(file.replace(/\.md$/, ''));
+		const storyMetadata = getStoryMetadata(slug);
 		if (mainData.coverImage) {
-			media.push(String(mainData.coverImage));
+			const src = String(mainData.coverImage);
+			media.push({
+				src,
+				alt: `Cover image for ${storyMetadata?.title.en || mainData.title || slug}`,
+				isVideo: src.toLowerCase().endsWith('.mp4')
+			});
 		}
 		let match: RegExpExecArray | null;
 		while ((match = mediaRegex.exec(content))) {
-			const src = match[1]?.trim();
-			if (src) media.push(src);
+			const authoredAlt = match[1]?.trim() || '';
+			const src = match[2]?.trim();
+			const override = src ? resolveMediaOverride(slug, src, 'en') : undefined;
+			if (src && !override?.suppress) {
+				media.push({
+					src: override?.replacement || src,
+					alt: override?.alt || authoredAlt || readableMediaName(src),
+					isVideo: src.toLowerCase().endsWith('.mp4')
+				});
+			}
 		}
 	}
 
-	const unique = Array.from(new Set(media));
-	return unique.map((src) => ({
-		src: toCdnPath(src),
-		isVideo: src.toLowerCase().endsWith('.mp4')
-	}));
+	const unique = Array.from(new Map(media.map((item) => [item.src, item])).values()).filter(
+		(item) =>
+			(/^https?:\/\//i.test(item.src) || item.src.startsWith('/')) &&
+			supportedMedia.test(item.src)
+	);
+	return unique.map((item) => ({ ...item, src: toCdnPath(item.src) }));
+};
+
+const readableMediaName = (src: string) => {
+	const filename = decodeURIComponent(src.split('/').pop() || '')
+		.replace(/\.[^.]+$/, '')
+		.replace(/[-_]+/g, ' ')
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.trim();
+	return filename ? `Scene from the journal: ${filename}` : 'Scene from a recent journal';
 };
 
 const shuffle = <T>(input: T[]): T[] => {
@@ -69,13 +97,17 @@ export async function load() {
 		'/blogimages/undercity/group.webp',
 		'/blogimages/neighborhood/paolobeingsmart.mp4',
 		'/blogimages/neighborhood/populated.webp'
-	].map((src) => ({ src: toCdnPath(src), isVideo: src.endsWith('.mp4') }));
+	].map((src) => ({
+		src: toCdnPath(src),
+		isVideo: src.endsWith('.mp4'),
+		alt: readableMediaName(src)
+	}));
 
-	const mediaPool = allMedia.length > 0 ? allMedia : fallbackMedia;
+	const stillImages = allMedia.filter((item) => !item.isVideo);
+	const mediaPool = stillImages.length > 0 ? stillImages : fallbackMedia.filter((item) => !item.isVideo);
 	const carouselImages = shuffle(mediaPool).slice(0, 24);
 
-	const aboutMeImages = ['/mainme.webp', '/aboutme-writing.webp', '/aboutme3.webp'];
-	const aboutMeImage = aboutMeImages[Math.floor(Math.random() * aboutMeImages.length)];
+	const aboutMeImage = '/me.webp';
 
 	const seoDescription =
 		'About Nick Esselman: builder, programmer, and photographer sharing projects, trips, and notes from the road.';
@@ -83,22 +115,28 @@ export async function load() {
 	return {
 		carouselImages,
 		aboutMeImage,
+		locale: 'en',
 		seo: buildSeo({
 			title: 'About Nick',
 			description: seoDescription,
 			pathname: '/about',
+			alternates: {
+				en: 'https://blog.nickesselman.nl/about',
+				nl: 'https://blog.nickesselman.nl/nl/about',
+				xDefault: 'https://blog.nickesselman.nl/about'
+			},
 			ogType: 'profile',
-			image: '/mainme.webp',
+			image: '/me.webp',
 			imageAlt: 'Portrait of Nick Esselman',
 			structuredData: [
-				createAboutPageSchema({
+				createProfilePageSchema({
 					description: seoDescription,
 					pathname: '/about',
-					image: '/mainme.webp'
+					image: '/me.webp'
 				}),
 				createPersonSchema({
 					description: seoDescription,
-					image: '/mainme.webp'
+					image: '/me.webp'
 				}),
 				createBreadcrumbSchema([
 					{ name: 'Home', pathname: '/' },

@@ -3,8 +3,11 @@ import path from 'path';
 import matter from 'gray-matter';
 import type { RequestHandler } from './$types';
 import { toAbsoluteUrl } from '$lib/seo';
+import { publicPostSlug } from '$lib/postRoutes';
+import { getStoryMetadata } from '$lib/storyMetadata';
 
 const POSTS_DIR = path.join(process.cwd(), 'src', 'posts');
+const DUTCH_DIR = path.join(process.cwd(), 'src', 'translations', 'nl');
 
 const escapeXml = (value: string) =>
 	value
@@ -28,32 +31,45 @@ const extractLatestDate = (fileContent: string, fallback: number) => {
 	}
 
 	if (dates.length === 0) return new Date(fallback).toISOString();
-	return new Date(Math.max(...dates, fallback)).toISOString();
+	return new Date(Math.max(...dates)).toISOString();
 };
 
 const readPostUrls = () => {
 	if (!fs.existsSync(POSTS_DIR)) return [];
 
-	return fs
+	const posts = fs
 		.readdirSync(POSTS_DIR)
 		.filter((file) => file.endsWith('.md'))
 		.map((filename) => {
 			const filePath = path.join(POSTS_DIR, filename);
 			const fileContent = fs.readFileSync(filePath, 'utf-8');
 			const stats = fs.statSync(filePath);
+			const slug = publicPostSlug(filename.replace(/\.md$/, ''));
+			const metadata = getStoryMetadata(slug);
 
 			return {
-				loc: toAbsoluteUrl(`/${filename.replace(/\.md$/, '')}`),
-				lastmod: extractLatestDate(fileContent, stats.mtimeMs)
+				loc: toAbsoluteUrl(`/${slug}`),
+				lastmod: metadata?.modifiedTime || extractLatestDate(fileContent, stats.mtimeMs)
 			};
 		})
 		.sort((a, b) => b.lastmod.localeCompare(a.lastmod));
+
+	const dutch = posts
+		.filter((post) => {
+			const slug = new URL(post.loc).pathname.split('/').filter(Boolean).pop();
+			return Boolean(slug && fs.existsSync(path.join(DUTCH_DIR, `${slug}.json`)));
+		})
+		.map((post) => ({ ...post, loc: post.loc.replace('blog.nickesselman.nl/', 'blog.nickesselman.nl/nl/') }));
+
+	return [...posts, ...dutch];
 };
 
 export const GET: RequestHandler = () => {
 	const urls = [
 		{ loc: toAbsoluteUrl('/'), lastmod: undefined },
 		{ loc: toAbsoluteUrl('/about'), lastmod: undefined },
+		{ loc: toAbsoluteUrl('/nl'), lastmod: undefined },
+		{ loc: toAbsoluteUrl('/nl/about'), lastmod: undefined },
 		...readPostUrls()
 	];
 

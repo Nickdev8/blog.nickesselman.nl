@@ -3,13 +3,21 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite --host 127.0.0.1",
-		"build": "vite build",
+		"dev": "node scripts/run-with-translations.mjs node_modules/vite/bin/vite.js --host 127.0.0.1",
+		"build": "node scripts/generate-dutch-translations.mjs && vite build",
+		"translate:nl": "node scripts/generate-dutch-translations.mjs",
 		"preview": "vite preview",
 		"sync": "svelte-kit sync",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"validate:seo": "tsx scripts/validate-seo.ts",
+		"validate:rendered": "tsx scripts/validate-rendered-seo.ts",
+		"verify:cdn": "tsx scripts/verify-cdn-media.ts",
+		"snapshot:immich": "node scripts/snapshot-immich-album.mjs",
+		"lighthouse": "lhci autorun",
+		"quality": "npm run check && npm run validate:seo && npm run build && npm run validate:rendered"
 	},
 	"devDependencies": {
+		"@lhci/cli": "^0.15.1",
 		"@sveltejs/adapter-node": "^5.2.13",
 		"@sveltejs/kit": "^2.25.1",
 		"@sveltejs/vite-plugin-svelte": "^3.1.2",
@@ -29,13 +37,12 @@
 		"svelte-check": "^3.7.1",
 		"tailwindcss": "^3.4.3",
 		"tslib": "^2.6.2",
+		"tsx": "^4.23.1",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.8"
 	},
 	"type": "module",
 	"dependencies": {
-		"@splidejs/splide": "^4.1.4",
-		"@splidejs/svelte-splide": "^0.2.9",
 		"gray-matter": "^4.0.3",
 		"leaflet": "^1.9.4",
 		"lucide-svelte": "^0.533.0",

@@ -149,9 +149,15 @@
 								r="12"
 								fill="transparent"
 								class="chart-hit"
+								role="button"
+								aria-label={`${formatLongDate(point.entry.timestamp)}: ${point.entry.count} visits`}
 								on:mouseenter={() => (hoverIndex = index)}
 								on:focus={() => (hoverIndex = index)}
 								on:mouseleave={() => (hoverIndex = -1)}
+								on:blur={() => (hoverIndex = -1)}
+								on:keydown={(event) => {
+									if (event.key === 'Enter' || event.key === ' ') hoverIndex = index;
+								}}
 								tabindex="0"
 							/>
 						{/each}
@@ -246,6 +252,27 @@
 					</ul>
 				{/if}
 			</div>
+		</section>
+
+		<section class="section">
+			<h2>Private reader notes</h2>
+			{#if data.notes.length === 0}
+				<p class="muted">No private notes yet.</p>
+			{:else}
+				<div class="notes-list">
+					{#each data.notes as note}
+						<article class="note">
+							<div class="note-meta">
+								<strong>{note.name}</strong>
+								<span>{note.storyTitle}</span>
+								<span>{formatDate(note.createdAt)}</span>
+								<span class:delivery-failed={note.emailStatus === 'failed'}>{note.emailStatus}</span>
+							</div>
+							<p>{note.message}</p>
+						</article>
+					{/each}
+				</div>
+			{/if}
 		</section>
 
 		<section class="section">
@@ -387,6 +414,40 @@
 		cursor: pointer;
 	}
 
+	.notes-list {
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.note {
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	.note p {
+		margin: 0.8rem 0 0;
+		white-space: pre-wrap;
+		line-height: 1.6;
+	}
+
+	.note-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.55);
+	}
+
+	.note-meta strong {
+		color: #f3f4f6;
+	}
+
+	.delivery-failed {
+		color: rgb(255, 128, 128);
+	}
+
 	.eyebrow {
 		text-transform: uppercase;
 		letter-spacing: 0.35em;
@@ -468,15 +529,6 @@
 		border: 1px solid rgba(255, 255, 255, 0.05);
 	}
 
-	.row.row--two {
-		grid-template-columns: minmax(0, 1.2fr) 0.8fr;
-	}
-
-	.row.row--three {
-		grid-template-columns: minmax(0, 0.9fr) 0.7fr minmax(0, 1.4fr);
-		align-items: start;
-	}
-
 	.row.row--four {
 		grid-template-columns: minmax(0, 0.9fr) 0.4fr 0.7fr minmax(0, 1.4fr);
 		align-items: start;
@@ -527,34 +579,6 @@
 		padding: 0.2rem 0.6rem;
 		background: rgba(255, 255, 255, 0.08);
 		font-size: 0.8rem;
-	}
-
-	.names {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.name-pill {
-		padding: 0.35rem 0.75rem;
-		border-radius: 999px;
-		background: rgba(255, 255, 255, 0.08);
-		font-size: 0.85rem;
-	}
-
-	.readers {
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-	}
-
-	.reader-card {
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 1rem;
-		padding: 1rem;
-		display: grid;
-		gap: 0.6rem;
 	}
 
 	.visited-tags {

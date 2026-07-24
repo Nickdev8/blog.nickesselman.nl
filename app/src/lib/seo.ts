@@ -2,6 +2,11 @@ export const SITE_URL = 'https://blog.nickesselman.nl';
 export const SITE_NAME = "Nick's Blogs & Adventures";
 export const SITE_AUTHOR = 'Nick Esselman';
 export const SITE_AUTHOR_URL = 'https://nickesselman.nl';
+export const SITE_AUTHOR_PROFILES = [
+	SITE_AUTHOR_URL,
+	'https://github.com/Nickdev8',
+	'https://nl.linkedin.com/in/nick-esselman'
+];
 export const SITE_DESCRIPTION =
 	'Trip journals, build notes, and long-form travel stories by Nick Esselman.';
 export const DEFAULT_OG_IMAGE_PATH = '/og-image.jpg';
@@ -20,6 +25,11 @@ export type SeoData = {
 	image: string;
 	imageAlt: string;
 	structuredData: JsonLd[];
+	alternates?: {
+		en: string;
+		nl: string;
+		xDefault?: string;
+	};
 	publishedTime?: string;
 	modifiedTime?: string;
 };
@@ -33,14 +43,17 @@ type BuildSeoInput = {
 	image?: string;
 	imageAlt?: string;
 	structuredData?: JsonLd[];
+	alternates?: SeoData['alternates'];
 	publishedTime?: string;
 	modifiedTime?: string;
 };
 
 const createPersonReference = () => ({
 	'@type': 'Person',
+	'@id': `${SITE_AUTHOR_URL}/#person`,
 	name: SITE_AUTHOR,
-	url: SITE_AUTHOR_URL
+	url: SITE_AUTHOR_URL,
+	sameAs: SITE_AUTHOR_PROFILES
 });
 
 export const toAbsoluteUrl = (pathname = '/') => {
@@ -70,6 +83,7 @@ export const buildSeo = ({
 	image,
 	imageAlt,
 	structuredData = [],
+	alternates,
 	publishedTime,
 	modifiedTime
 }: BuildSeoInput = {}): SeoData => ({
@@ -81,6 +95,7 @@ export const buildSeo = ({
 	image: toAbsoluteImage(image),
 	imageAlt: imageAlt || title || SITE_NAME,
 	structuredData,
+	alternates,
 	publishedTime,
 	modifiedTime
 });
@@ -89,13 +104,20 @@ export const defaultSeo = buildSeo();
 
 export const serializeJsonLd = (value: JsonLd) => JSON.stringify(value).replace(/</g, '\\u003c');
 
-export const createWebsiteSchema = (): JsonLd => ({
+export const createWebsiteSchema = ({
+	pathname = '/',
+	language = 'en'
+}: {
+	pathname?: string;
+	language?: 'en' | 'nl';
+} = {}): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'WebSite',
+	'@id': `${toAbsoluteUrl(pathname)}#website`,
 	name: SITE_NAME,
-	url: SITE_URL,
+	url: toAbsoluteUrl(pathname),
 	description: SITE_DESCRIPTION,
-	inLanguage: 'en',
+	inLanguage: language,
 	publisher: createPersonReference()
 });
 
@@ -103,19 +125,21 @@ export const createCollectionPageSchema = ({
 	name,
 	description,
 	pathname,
-	image
+	image,
+	language = 'en'
 }: {
 	name: string;
 	description: string;
 	pathname: string;
 	image?: string;
+	language?: 'en' | 'nl';
 }): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'CollectionPage',
 	name,
 	description,
 	url: toAbsoluteUrl(pathname),
-	inLanguage: 'en',
+	inLanguage: language,
 	primaryImageOfPage: toAbsoluteImage(image),
 	isPartOf: {
 		'@type': 'WebSite',
@@ -141,20 +165,57 @@ export const createItemListSchema = (
 export const createAboutPageSchema = ({
 	description,
 	pathname,
-	image
+	image,
+	language = 'en',
+	name = `About ${SITE_AUTHOR}`
 }: {
 	description: string;
 	pathname: string;
 	image?: string;
+	language?: 'en' | 'nl';
+	name?: string;
 }): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'AboutPage',
-	name: `About ${SITE_AUTHOR}`,
+	name,
 	description,
 	url: toAbsoluteUrl(pathname),
-	inLanguage: 'en',
+	inLanguage: language,
 	about: createPersonReference(),
 	primaryImageOfPage: toAbsoluteImage(image)
+});
+
+export const createProfilePageSchema = ({
+	description,
+	pathname,
+	image,
+	language = 'en',
+	name = `${SITE_AUTHOR} profile`
+}: {
+	description: string;
+	pathname: string;
+	image?: string;
+	language?: 'en' | 'nl';
+	name?: string;
+}): JsonLd => ({
+	'@context': 'https://schema.org',
+	'@type': 'ProfilePage',
+	'@id': `${toAbsoluteUrl(pathname)}#profile`,
+	name,
+	description,
+	url: toAbsoluteUrl(pathname),
+	inLanguage: language,
+	mainEntity: {
+		...createPersonReference(),
+		description,
+		image: toAbsoluteImage(image)
+	},
+	isPartOf: {
+		'@type': 'WebSite',
+		'@id': `${SITE_URL}/#website`,
+		name: SITE_NAME,
+		url: SITE_URL
+	}
 });
 
 export const createPersonSchema = ({
@@ -166,11 +227,12 @@ export const createPersonSchema = ({
 }): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'Person',
+	'@id': `${SITE_AUTHOR_URL}/#person`,
 	name: SITE_AUTHOR,
 	url: SITE_AUTHOR_URL,
 	description,
 	image: toAbsoluteImage(image),
-	sameAs: [SITE_AUTHOR_URL]
+	sameAs: SITE_AUTHOR_PROFILES
 });
 
 export const createArticleSchema = ({
@@ -179,7 +241,8 @@ export const createArticleSchema = ({
 	pathname,
 	image,
 	datePublished,
-	dateModified
+	dateModified,
+	language = 'en'
 }: {
 	headline: string;
 	description: string;
@@ -187,15 +250,20 @@ export const createArticleSchema = ({
 	image?: string;
 	datePublished?: string;
 	dateModified?: string;
+	language?: 'en' | 'nl';
 }): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'BlogPosting',
+	'@id': `${toAbsoluteUrl(pathname)}#article`,
 	headline,
 	description,
 	url: toAbsoluteUrl(pathname),
-	mainEntityOfPage: toAbsoluteUrl(pathname),
+	mainEntityOfPage: {
+		'@type': 'WebPage',
+		'@id': toAbsoluteUrl(pathname)
+	},
 	image: [toAbsoluteImage(image)],
-	inLanguage: 'en',
+	inLanguage: language,
 	author: createPersonReference(),
 	publisher: createPersonReference(),
 	datePublished,

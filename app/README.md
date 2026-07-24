@@ -47,6 +47,19 @@ npm run preview  # http://localhost:3000
 * Zero external DBs, just JSON files with atomic writes.
 * Simple deploy script with rsync + PM2 reloads.
 
+## Dutch translations
+
+English remains the default at `/story`, while generated Dutch pages live at `/nl/story`.
+Translations are generated in one batch and stored in `src/translations/nl`; visitors never wait for a browser translation widget. Starting the development or production server watches `src/posts`, and changing an English Markdown file regenerates the matching Dutch content automatically. Production builds also refresh changed translations before compiling.
+
+Keep protected names in `PUBLIC_NO_TRANSLATE_WORDS`. To refresh translations manually, run:
+
+```bash
+npm run translate:nl
+```
+
+The generator only retranslates posts whose source Markdown or protected-word list changed. The public Florida URL is `/florida`; its source Markdown and media remain under the existing `moonshot` name.
+
 ## Stack
 
 * **Frontend/SSR:** SvelteKit (adapter-node)
