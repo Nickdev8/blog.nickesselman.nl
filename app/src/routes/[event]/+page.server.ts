@@ -14,6 +14,12 @@ import {
 import { getTurnstileSiteKey, savePrivateNote } from '$lib/server/privateNote';
 import { legacyPostRedirect, publicPostSlug, sourcePostSlug } from '$lib/postRoutes';
 import { readDutchTranslation } from '$lib/server/dutchTranslations';
+import {
+	getLocalizedStoryMetadata,
+	resolveMediaOverride,
+	STORY_METADATA
+} from '$lib/storyMetadata';
+import { sanitizeJournalHtml } from '$lib/server/journalHtml';
 
 const CDN_BASE = 'https://cdn.nickesselman.nl';
 const toCdnPath = (src?: string) => {
@@ -57,7 +63,10 @@ export const load: PageServerLoad = async ({ params }) => {
 		  }
 		: null;
 
-	type MediaBlock = { type: 'media'; media: { src: string; alt: string; layout: string[] } };
+	type MediaBlock = {
+		type: 'media';
+		media: { src: string; alt: string; caption: string; layout: string[] };
+	};
 	type TextBlock = { type: 'text'; html: string };
 	type PostBlock = MediaBlock | TextBlock;
 
@@ -89,12 +98,18 @@ export const load: PageServerLoad = async ({ params }) => {
 				blocks.push({ type: 'text', html: renderMarkdown(preceding) });
 			}
 
+			const rawSrc = src.trim();
+			const override = resolveMediaOverride(eventName, rawSrc, 'en');
+			const authoredAlt = altRaw.trim();
+			const hasUsefulAuthoredAlt =
+				Boolean(authoredAlt) && !/^(?:alt text|image|photo|extra image)$/i.test(authoredAlt);
 			const layoutArr = layoutRaw ? layoutRaw.trim().split(/\s+/).filter(Boolean) : [];
 			blocks.push({
 				type: 'media',
 				media: {
-					src: toCdnPath(src.trim()) || '',
-					alt: altRaw.trim(),
+					src: override?.suppress ? '' : toCdnPath(override?.replacement || rawSrc) || '',
+					alt: override?.alt || authoredAlt,
+					caption: hasUsefulAuthoredAlt ? authoredAlt : '',
 					layout: layoutArr
 				}
 			});
@@ -145,11 +160,15 @@ export const load: PageServerLoad = async ({ params }) => {
 	const endDate = chronologicalPosts[chronologicalPosts.length - 1]?.date;
 	const eventLabel = humanizeSlug(eventName);
 	const titleBase = mainData.title || eventLabel;
-	const seoTitle = titleBase.toLowerCase().includes(eventLabel.toLowerCase())
-		? titleBase
-		: `${eventLabel}: ${titleBase}`;
+	const storyMetadata = getLocalizedStoryMetadata(eventName, 'en');
+	const seoTitle =
+		storyMetadata?.title ||
+		(titleBase.toLowerCase().includes(eventLabel.toLowerCase())
+			? titleBase
+			: `${eventLabel}: ${titleBase}`);
 	const entryCountLabel = posts.length === 1 ? 'entry' : 'entries';
 	const seoDescription =
+		storyMetadata?.description ||
 		mainData.description ||
 		`${eventLabel} travel journal with ${posts.length || 'multiple'} ${entryCountLabel} by Nick Esselman.`;
 
@@ -167,9 +186,14 @@ export const load: PageServerLoad = async ({ params }) => {
 		title: mainData.title || '',
 		description: mainData.description || '',
 		coverImage: toCdnPath(mainData.coverImage) || '',
+		coverImageAlt: `Cover image for ${seoTitle}`,
 		content: '',
 		images: [],
 		tripDateRange: { start: startDate, end: endDate },
+		relatedStories: (storyMetadata?.related || [])
+			.map((slug) => STORY_METADATA[slug])
+			.filter(Boolean)
+			.map((story) => ({ slug: story.slug, title: story.title.en })),
 		immichAlbum,
 		sortOrder,
 		timezone: mainData.timezone || '',
@@ -186,16 +210,16 @@ export const load: PageServerLoad = async ({ params }) => {
 			ogType: 'article',
 			image: toCdnPath(mainData.coverImage),
 			imageAlt: `Cover image for ${seoTitle}`,
-			publishedTime: startDate ? new Date(startDate).toISOString() : undefined,
-			modifiedTime: endDate ? new Date(endDate).toISOString() : undefined,
+			publishedTime: storyMetadata?.publishedTime,
+			modifiedTime: storyMetadata?.modifiedTime,
 			structuredData: [
 				createArticleSchema({
 					headline: seoTitle,
 					description: seoDescription,
 					pathname: `/${eventName}`,
 					image: toCdnPath(mainData.coverImage),
-					datePublished: startDate ? new Date(startDate).toISOString() : undefined,
-					dateModified: endDate ? new Date(endDate).toISOString() : undefined
+					datePublished: storyMetadata?.publishedTime,
+					dateModified: storyMetadata?.modifiedTime
 				}),
 				createBreadcrumbSchema([
 					{ name: 'Home', pathname: '/' },
@@ -257,7 +281,7 @@ const renderMarkdown = (input: string) => {
 	const nestedHeadings = input.replace(/^##(\s+)/gm, '###$1');
 	const parsed = marked.parse(nestedHeadings);
 	if (typeof parsed === 'string') {
-		return parsed;
+		return sanitizeJournalHtml(parsed);
 	}
 	throw new Error('Async markdown rendering is not supported for trip posts.');
 };

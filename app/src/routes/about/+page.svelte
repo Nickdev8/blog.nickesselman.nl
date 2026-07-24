@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { cdnImageSrcset } from '$lib/cdnImages';
+	import { cdnImageDimensions, cdnImageSrcset } from '$lib/cdnImages';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
 	export let data: {
 		locale?: 'en' | 'nl';
-		carouselImages: { src: string; isVideo: boolean }[];
+		carouselImages: { src: string; isVideo: boolean; alt: string }[];
 		aboutMeImage: string;
 	};
 	let visibleCarouselImages = [...data.carouselImages];
@@ -74,6 +74,17 @@
 	});
 </script>
 
+<svelte:head>
+	<link
+		rel="preload"
+		as="image"
+		href="/me-w480.webp"
+		imagesrcset="/me-w480.webp 480w, /me-w960.webp 960w"
+		imagesizes="(min-width: 1024px) 42vw, 92vw"
+		fetchpriority="high"
+	/>
+</svelte:head>
+
 <main class="site-container py-12 sm:py-16">
 	<section class="grid gap-8 border-b border-[#d8d2c7] pb-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,1.2fr)] lg:items-end">
 		<div class="max-w-xl">
@@ -85,7 +96,7 @@
 				{copy.body}
 			</p>
 		</div>
-		<img src={data.aboutMeImage} alt="Nick Esselman" width="1793" height="1800" fetchpriority="high" decoding="async" class="aspect-square w-[92%] max-w-lg justify-self-center object-cover lg:justify-self-end" />
+		<img src="/me-w480.webp" srcset="/me-w480.webp 480w, /me-w960.webp 960w" sizes="(min-width: 1024px) 42vw, 92vw" alt="Nick Esselman" width="1793" height="1800" fetchpriority="high" decoding="async" class="aspect-square w-[92%] max-w-lg justify-self-center object-cover lg:justify-self-end" />
 	</section>
 
 	{#if visibleCarouselImages.length > 0}
@@ -97,10 +108,10 @@
 				</div>
 			</div>
 			<div class="mb-3 flex gap-2">
-				<button type="button" class="inline-flex size-11 items-center justify-center border border-[#d8d2c7] bg-transparent disabled:cursor-default disabled:opacity-40" on:click={() => moveCarousel(-1)} disabled={!canScrollBack} aria-label={isDutch ? 'Vorige beelden' : 'Previous scenes'}>
+				<button type="button" class="inline-flex size-12 items-center justify-center border border-[#d8d2c7] bg-transparent disabled:cursor-default disabled:opacity-40" on:click={() => moveCarousel(-1)} disabled={!canScrollBack} aria-label={isDutch ? 'Vorige beelden' : 'Previous scenes'}>
 					<ChevronLeft class="size-5" aria-hidden="true" />
 				</button>
-				<button type="button" class="inline-flex size-11 items-center justify-center border border-[#d8d2c7] bg-transparent disabled:cursor-default disabled:opacity-40" on:click={() => moveCarousel(1)} disabled={!canScrollForward} aria-label={isDutch ? 'Volgende beelden' : 'Next scenes'}>
+				<button type="button" class="inline-flex size-12 items-center justify-center border border-[#d8d2c7] bg-transparent disabled:cursor-default disabled:opacity-40" on:click={() => moveCarousel(1)} disabled={!canScrollForward} aria-label={isDutch ? 'Volgende beelden' : 'Next scenes'}>
 					<ChevronRight class="size-5" aria-hidden="true" />
 				</button>
 			</div>
@@ -110,7 +121,8 @@
 						{#if media.isVideo}
 							<video src={media.src} class="aspect-[4/3] w-full object-cover" loop playsinline muted preload="none" use:playMuted on:error={(event) => removeBrokenMedia(media.src, event.currentTarget)}><track kind="captions" /></video>
 						{:else}
-							<img src={media.src} srcset={cdnImageSrcset(media.src)} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" alt="Scene from a recent story" class="aspect-[4/3] w-full object-cover" loading="lazy" decoding="async" on:error={(event) => removeBrokenMedia(media.src, event.currentTarget)} />
+							{@const dimensions = cdnImageDimensions(media.src)}
+							<img src={media.src} srcset={cdnImageSrcset(media.src)} width={dimensions?.width} height={dimensions?.height} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" alt={media.alt} class="aspect-[4/3] w-full object-cover" loading="lazy" decoding="async" on:error={(event) => removeBrokenMedia(media.src, event.currentTarget)} />
 						{/if}
 					</div>
 				{/each}

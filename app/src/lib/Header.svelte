@@ -29,7 +29,7 @@
 
 		<button
 			type="button"
-			class="inline-flex size-10 items-center justify-center border border-[#d8d2c7] bg-transparent text-[#211f1b] md:hidden"
+			class="inline-flex size-12 items-center justify-center border border-[#d8d2c7] bg-transparent text-[#211f1b] md:hidden"
 			on:click={() => (isMobileMenuOpen = !isMobileMenuOpen)}
 			aria-expanded={isMobileMenuOpen}
 			aria-controls="mobile-navigation"

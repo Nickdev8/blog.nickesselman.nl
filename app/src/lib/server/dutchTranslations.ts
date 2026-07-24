@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { sanitizeJournalHtml } from '$lib/server/journalHtml';
 
 export type DutchTranslation = {
 	sourceHash: string;
@@ -53,10 +54,16 @@ export const applyDutchTranslation = <T extends PostPageData>(
 			blocks: post.blocks.map((block, blockIndex) => {
 				const translatedBlock = translatedEntry?.blocks[blockIndex];
 				if (block.type === 'text' && translatedBlock?.type === 'text') {
-					return { ...block, html: translatedBlock.html };
+					return { ...block, html: sanitizeJournalHtml(translatedBlock.html) };
 				}
 				if (block.type === 'media' && translatedBlock?.type === 'media') {
-					return { ...block, media: { ...block.media, alt: translatedBlock.alt } };
+					const translatedAlt = translatedBlock.alt?.trim();
+					const hasUsefulTranslatedAlt =
+						Boolean(translatedAlt) &&
+						!/^(?:alt text|afbeelding|image|photo|foto|extra image)$/i.test(translatedAlt);
+					return hasUsefulTranslatedAlt
+						? { ...block, media: { ...block.media, alt: translatedAlt } }
+						: block;
 				}
 				return block;
 			})

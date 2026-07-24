@@ -9,6 +9,7 @@ import {
 	createWebsiteSchema,
 	toAbsoluteUrl
 } from '$lib/seo';
+import { getLocalizedStoryMetadata } from '$lib/storyMetadata';
 
 export const load: PageServerLoad = async (event) => {
 	const base = await loadEnglish(event as never);
@@ -47,9 +48,10 @@ export const load: PageServerLoad = async (event) => {
 				}),
 				createItemListSchema(
 					events.slice(0, 12).map((post) => ({
-						name: post.title,
+						name: getLocalizedStoryMetadata(post.slug, 'nl')?.title || post.title,
 						pathname: `/nl/${post.slug}`,
-						description: post.description
+						description:
+							getLocalizedStoryMetadata(post.slug, 'nl')?.description || post.description
 					}))
 				)
 			]

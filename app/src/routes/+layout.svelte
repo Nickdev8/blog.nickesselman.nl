@@ -50,15 +50,16 @@
 		$page.status >= 400
 			? getErrorSeo($page.status, $page.url.pathname)
 			: (($page.data as { seo?: SeoData })?.seo ?? defaultSeo);
+	afterNavigate(({ from, to }) => {
+		if (!from || !to) return;
+		document.documentElement.lang =
+			to.url.pathname === '/nl' || to.url.pathname.startsWith('/nl/') ? 'nl' : 'en';
+		trackVisitWhenIdle(to.url.pathname, from.url.pathname);
+	});
 	onMount(() => {
 		document.documentElement.lang = isDutch ? 'nl' : 'en';
 		getOrCreateReaderId();
 		trackVisitWhenIdle(window.location.pathname, document.referrer);
-		afterNavigate(({ from, to }) => {
-			if (!from || !to) return;
-			document.documentElement.lang = to.url.pathname === '/nl' || to.url.pathname.startsWith('/nl/') ? 'nl' : 'en';
-			trackVisitWhenIdle(to.url.pathname, from.url.pathname);
-		});
 	});
 </script>
 

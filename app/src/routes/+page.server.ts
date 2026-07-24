@@ -10,6 +10,7 @@ import {
 	createWebsiteSchema
 } from '$lib/seo';
 import { publicPostSlug } from '$lib/postRoutes';
+import { getLocalizedStoryMetadata } from '$lib/storyMetadata';
 
 const CDN_BASE = 'https://cdn.nickesselman.nl';
 const toCdnPath = (src?: string) => {
@@ -41,11 +42,15 @@ export const load: PageServerLoad = async () => {
 		const latestDate = dateStamps.length ? Math.max(...dateStamps) : 0;
 
 		const slug = publicPostSlug(filename.replace(/\.md$/, ''));
+		const storyMetadata = getLocalizedStoryMetadata(slug, 'en');
 
 		return {
 			slug,
 			title: data.title || slug,
 			description: data.description || 'No description available.',
+			seoTitle: storyMetadata?.title || data.title || slug,
+			seoDescription:
+				storyMetadata?.description || data.description || 'No description available.',
 			coverImage: toCdnPath(data.coverImage) || DEFAULT_OG_IMAGE_PATH,
 			live: data.live || false,
 			latestDate
@@ -84,9 +89,9 @@ export const load: PageServerLoad = async () => {
 				}),
 				createItemListSchema(
 					events.slice(0, 12).map((event) => ({
-						name: event.title,
+						name: event.seoTitle,
 						pathname: `/${event.slug}`,
-						description: event.description
+						description: event.seoDescription
 					}))
 				)
 			]

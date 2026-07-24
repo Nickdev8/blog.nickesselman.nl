@@ -149,9 +149,15 @@
 								r="12"
 								fill="transparent"
 								class="chart-hit"
+								role="button"
+								aria-label={`${formatLongDate(point.entry.timestamp)}: ${point.entry.count} visits`}
 								on:mouseenter={() => (hoverIndex = index)}
 								on:focus={() => (hoverIndex = index)}
 								on:mouseleave={() => (hoverIndex = -1)}
+								on:blur={() => (hoverIndex = -1)}
+								on:keydown={(event) => {
+									if (event.key === 'Enter' || event.key === ' ') hoverIndex = index;
+								}}
 								tabindex="0"
 							/>
 						{/each}
@@ -523,15 +529,6 @@
 		border: 1px solid rgba(255, 255, 255, 0.05);
 	}
 
-	.row.row--two {
-		grid-template-columns: minmax(0, 1.2fr) 0.8fr;
-	}
-
-	.row.row--three {
-		grid-template-columns: minmax(0, 0.9fr) 0.7fr minmax(0, 1.4fr);
-		align-items: start;
-	}
-
 	.row.row--four {
 		grid-template-columns: minmax(0, 0.9fr) 0.4fr 0.7fr minmax(0, 1.4fr);
 		align-items: start;
@@ -582,34 +579,6 @@
 		padding: 0.2rem 0.6rem;
 		background: rgba(255, 255, 255, 0.08);
 		font-size: 0.8rem;
-	}
-
-	.names {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-	}
-
-	.name-pill {
-		padding: 0.35rem 0.75rem;
-		border-radius: 999px;
-		background: rgba(255, 255, 255, 0.08);
-		font-size: 0.85rem;
-	}
-
-	.readers {
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-	}
-
-	.reader-card {
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 1rem;
-		padding: 1rem;
-		display: grid;
-		gap: 0.6rem;
 	}
 
 	.visited-tags {

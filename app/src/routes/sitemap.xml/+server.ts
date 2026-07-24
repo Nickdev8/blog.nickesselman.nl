@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import type { RequestHandler } from './$types';
 import { toAbsoluteUrl } from '$lib/seo';
 import { publicPostSlug } from '$lib/postRoutes';
+import { getStoryMetadata } from '$lib/storyMetadata';
 
 const POSTS_DIR = path.join(process.cwd(), 'src', 'posts');
 const DUTCH_DIR = path.join(process.cwd(), 'src', 'translations', 'nl');
@@ -43,10 +44,12 @@ const readPostUrls = () => {
 			const filePath = path.join(POSTS_DIR, filename);
 			const fileContent = fs.readFileSync(filePath, 'utf-8');
 			const stats = fs.statSync(filePath);
+			const slug = publicPostSlug(filename.replace(/\.md$/, ''));
+			const metadata = getStoryMetadata(slug);
 
 			return {
-				loc: toAbsoluteUrl(`/${publicPostSlug(filename.replace(/\.md$/, ''))}`),
-				lastmod: extractLatestDate(fileContent, stats.mtimeMs)
+				loc: toAbsoluteUrl(`/${slug}`),
+				lastmod: metadata?.modifiedTime || extractLatestDate(fileContent, stats.mtimeMs)
 			};
 		})
 		.sort((a, b) => b.lastmod.localeCompare(a.lastmod));

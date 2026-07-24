@@ -194,7 +194,7 @@
 					/>
 				{/if}
 				<button
-					class="absolute right-2 top-2 size-10 border border-white/60 bg-black text-2xl text-white"
+					class="absolute right-2 top-2 size-12 border border-white/60 bg-black text-2xl text-white"
 					on:click={closeFullscreen}
 					aria-label={isDutch ? 'Sluit media op volledig scherm' : 'Close fullscreen media'}
 				>

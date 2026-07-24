@@ -2,9 +2,9 @@ import type { PageServerLoad } from './$types';
 import { load as loadEnglish } from '../../about/+page.server';
 import {
 	SITE_NAME,
-	createAboutPageSchema,
 	createBreadcrumbSchema,
 	createPersonSchema,
+	createProfilePageSchema,
 	toAbsoluteUrl
 } from '$lib/seo';
 
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async (event) => {
 			description,
 			canonical: toAbsoluteUrl('/nl/about'),
 			structuredData: [
-				createAboutPageSchema({
+				createProfilePageSchema({
 					name: 'Over Nick Esselman',
 					description,
 					pathname: '/nl/about',

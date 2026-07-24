@@ -24,12 +24,16 @@ app/buildcommandlist.txt
 app/+page.js
 app/data/readers.json
 .migration-backups/
+.seo-cache/
+app/.lighthouseci/
 
 app/*/*.webp
 app/*/*.png
 app/*/*.jpg
 app/*/*.jpeg
 app/*/*.svg
+!app/static/me-w480.webp
+!app/static/me-w960.webp
 .env
 .env.*
 !.env.example

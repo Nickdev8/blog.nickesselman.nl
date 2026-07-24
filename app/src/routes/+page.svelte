@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { navigating } from '$app/stores';
-	import { cdnImageSrcset } from '$lib/cdnImages';
+	import { cdnImageDimensions, cdnImageSrcset, cdnImageVariant } from '$lib/cdnImages';
 	import { wrapNoTranslateWords } from '$lib/noTranslate';
 
 	export let data: {
@@ -38,12 +38,32 @@
 			more: 'More stories'
 		};
 	const leadPost = posts[0];
+	const leadDimensions = cdnImageDimensions(leadPost?.coverImage);
+	const leadSrcset = cdnImageSrcset(leadPost?.coverImage);
+	const leadMobileSrc = cdnImageVariant(leadPost?.coverImage, 480);
 	const remainingPosts = posts.slice(1);
 	const dateFormatter = new Intl.DateTimeFormat(isDutch ? 'nl' : 'en', { month: 'long', year: 'numeric' });
 	const formatDate = (value: number) => (value ? dateFormatter.format(new Date(value)) : copy.journal);
 	const postHref = (slug: string) => `${isDutch ? '/nl' : ''}/${slug}`;
 	const isVideo = (src: string) => src.toLowerCase().endsWith('.mp4');
 </script>
+
+<svelte:head>
+	{#if leadPost?.coverImage && leadSrcset}
+		{#if leadMobileSrc}
+			<link rel="preload" as="image" href={leadMobileSrc} media="(max-width: 640px)" fetchpriority="high" />
+		{/if}
+		<link
+			rel="preload"
+			as="image"
+			href={leadPost.coverImage}
+			imagesrcset={leadSrcset}
+			imagesizes="(min-width: 1024px) 70vw, 100vw"
+			media="(min-width: 641px)"
+			fetchpriority="high"
+		/>
+	{/if}
+</svelte:head>
 
 {#if $navigating}
 	<main class="site-container py-12 sm:py-16">
@@ -74,15 +94,20 @@
 						{#if isVideo(leadPost.coverImage)}
 							<video src={leadPost.coverImage} muted playsinline loop autoplay preload="metadata" class="aspect-[16/9] w-full object-cover"></video>
 						{:else}
-							<img
-								src={leadPost.coverImage}
-								srcset={cdnImageSrcset(leadPost.coverImage)}
-								alt=""
-								fetchpriority="high"
-								decoding="async"
-								sizes="(min-width: 1024px) 70vw, 100vw"
-								class="aspect-[16/9] w-full object-cover opacity-95 transition-opacity duration-200 group-hover:opacity-100"
-							/>
+							<picture>
+								{#if leadMobileSrc}<source media="(max-width: 640px)" srcset={leadMobileSrc} />{/if}
+								<img
+									src={leadPost.coverImage}
+									srcset={leadSrcset}
+									width={leadDimensions?.width}
+									height={leadDimensions?.height}
+									alt=""
+									fetchpriority="high"
+									decoding="async"
+									sizes="(min-width: 1024px) 70vw, 100vw"
+									class="aspect-[16/9] w-full object-cover opacity-95 transition-opacity duration-200 group-hover:opacity-100"
+								/>
+							</picture>
 						{/if}
 					</div>
 					<div class="border-t border-[#d8d2c7] pt-4 lg:border-t-0 lg:pt-0">
@@ -99,6 +124,7 @@
 			{#if remainingPosts.length > 0}
 				<section class="border-t border-[#d8d2c7]" aria-label={copy.more}>
 					{#each remainingPosts as post}
+						{@const dimensions = cdnImageDimensions(post.coverImage)}
 						<a href={postHref(post.slug)} class="group grid gap-5 border-b border-[#d8d2c7] py-7 sm:grid-cols-[220px_1fr_auto] sm:items-center lg:grid-cols-[300px_1fr_auto]">
 							<div class="overflow-hidden bg-[#e5e0d6]">
 								{#if isVideo(post.coverImage)}
@@ -107,6 +133,8 @@
 									<img
 										src={post.coverImage}
 										srcset={cdnImageSrcset(post.coverImage)}
+										width={dimensions?.width}
+										height={dimensions?.height}
 										alt=""
 										loading="lazy"
 										decoding="async"

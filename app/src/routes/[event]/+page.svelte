@@ -5,7 +5,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import type { ActionData } from './$types';
 	import ImmichGallery from '$lib/ImmichGallery.svelte';
-	import { cdnImageSrcset } from '$lib/cdnImages';
+	import { cdnImageDimensions, cdnImageSrcset, cdnImageVariant } from '$lib/cdnImages';
 	import { wrapNoTranslateWords } from '$lib/noTranslate';
 	import { lockBodyScroll, unlockBodyScroll } from '$lib/bodyScrollLock';
 	import { getOrCreateReaderId, trackReaderEvent } from '$lib/readerTracking';
@@ -20,7 +20,13 @@
 			date: string;
 			title: string;
 			slug: string;
-			blocks: ({ type: 'text'; html: string } | { type: 'media'; media: { src: string; alt: string; layout: string[] } })[];
+			blocks: (
+				| { type: 'text'; html: string }
+				| {
+						type: 'media';
+						media: { src: string; alt: string; caption: string; layout: string[] };
+				  }
+			)[];
 		}[];
 		event: string;
 		leftoverImages: { src: string; alt: string }[];
@@ -28,25 +34,31 @@
 		title: string;
 		description: string;
 		coverImage: string;
+		coverImageAlt?: string;
 		immichAlbum?: string;
 		timezone?: string;
 		timezoneLabel?: string;
 		sortOrder?: 'asc' | 'desc';
 		turnstileSiteKey?: string;
+		relatedStories?: { slug: string; title: string }[];
 	};
 	const isDutch = data.locale === 'nl';
 	const copy = isDutch
 		? {
 			close: 'Sluiten', allStories: 'Alle verhalen', entry: 'deel', entries: 'delen', updated: 'Bijgewerkt',
+			by: 'Door',
 			storyEntries: 'Delen van het verhaal', earliest: 'Oudste', latest: 'Nieuwste', jump: 'Ga naar deel',
 			empty: 'Er zijn nog geen delen.', day: 'Dag', openMedia: 'Open media op volledig scherm', more: 'Meer van de reis',
+			related: 'Gerelateerde verhalen',
 			noteTitle: 'Laat een privébericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven. Alleen ik kan dit lezen.',
 			noteThanks: 'Bedankt voor het lezen. Je bericht is privé opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur privébericht', fullscreen: 'Media op volledig scherm'
 		}
 		: {
 			close: 'Close', allStories: 'All stories', entry: 'entry', entries: 'entries', updated: 'Updated',
+			by: 'By',
 			storyEntries: 'Story entries', earliest: 'Earliest', latest: 'Latest', jump: 'Jump to entry',
 			empty: 'No entries just yet.', day: 'Day', openMedia: 'Open media fullscreen', more: 'More from the trip',
+			related: 'Related stories',
 			noteTitle: 'Leave me a private note', noteIntro: 'Tell me you were here, or share what stayed with you. Only I can read it.',
 			noteThanks: 'Thanks for reading. Your note is private and saved.', name: 'Your name', note: 'Your note', send: 'Send private note', fullscreen: 'Fullscreen media'
 		};
@@ -61,6 +73,9 @@
 	const readableTitle = data.title || data.event;
 	const heroDescription = data.description || 'A journal from the road.';
 	const coverImageSrc = toCdn(data.coverImage);
+	const coverImageDimensions = cdnImageDimensions(coverImageSrc);
+	const coverImageSrcset = cdnImageSrcset(coverImageSrc);
+	const coverMobileSrc = cdnImageVariant(coverImageSrc, 480);
 	const immichAlbum = data.immichAlbum;
 	const banner = data.banner;
 
@@ -113,22 +128,6 @@
 		script.defer = true;
 		document.head.appendChild(script);
 	};
-	const playWhenVisible = (node: HTMLVideoElement, enabled: boolean) => {
-		if (!enabled) return {};
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					void node.play().catch(() => {});
-				} else {
-					node.pause();
-				}
-			},
-			{ rootMargin: '200px 0px', threshold: 0.01 }
-		);
-		observer.observe(node);
-		return { destroy: () => observer.disconnect() };
-	};
-
 	const updateReadingState = () => {
 		const doc = document.documentElement;
 		const scrollable = Math.max(1, doc.scrollHeight - doc.clientHeight);
@@ -175,6 +174,23 @@
 	});
 </script>
 
+<svelte:head>
+	{#if coverImageSrc && coverImageSrcset}
+		{#if coverMobileSrc}
+			<link rel="preload" as="image" href={coverMobileSrc} media="(max-width: 640px)" fetchpriority="high" />
+		{/if}
+		<link
+			rel="preload"
+			as="image"
+			href={coverImageSrc}
+			imagesrcset={coverImageSrcset}
+			imagesizes="(min-width: 1280px) 1280px, 100vw"
+			media="(min-width: 641px)"
+			fetchpriority="high"
+		/>
+	{/if}
+</svelte:head>
+
 <svelte:window on:keydown={(event) => { if (event.key === 'Escape') closeFullscreen(); }} />
 
 {#if $navigating}
@@ -207,7 +223,8 @@
 				<h1 class="mt-6 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">{@html wrapNoTranslateWords(readableTitle)}</h1>
 				<p class="mt-5 max-w-2xl text-lg leading-8 text-[#5f5a52]">{heroDescription}</p>
 				<p class="mt-6 text-sm text-[#6f6a61]">
-					{data.posts.length} {data.posts.length === 1 ? copy.entry : copy.entries}
+					{copy.by} <a href={isDutch ? '/nl/about' : '/about'} class="hairline-link">Nick Esselman</a>
+					· {data.posts.length} {data.posts.length === 1 ? copy.entry : copy.entries}
 					{#if data.posts.length} · {copy.updated} {formatDate(chronological[chronological.length - 1]?.date)}{/if}
 					{#if data.timezoneLabel && localTime} · {data.timezoneLabel} {localTime}{/if}
 				</p>
@@ -217,15 +234,20 @@
 					{#if isVideo(coverImageSrc)}
 						<video src={coverImageSrc} muted autoplay loop playsinline preload="metadata" class="max-h-[70vh] w-full object-cover"></video>
 					{:else}
-						<img
-							src={coverImageSrc}
-							srcset={cdnImageSrcset(coverImageSrc)}
-							alt={`Cover for ${readableTitle}`}
-							fetchpriority="high"
-							decoding="async"
-							sizes="(min-width: 1280px) 1280px, 100vw"
-							class="max-h-[70vh] w-full object-cover"
-						/>
+						<picture>
+							{#if coverMobileSrc}<source media="(max-width: 640px)" srcset={coverMobileSrc} />{/if}
+							<img
+								src={coverImageSrc}
+								srcset={coverImageSrcset}
+								width={coverImageDimensions?.width}
+								height={coverImageDimensions?.height}
+								alt={data.coverImageAlt || `Cover for ${readableTitle}`}
+								fetchpriority="high"
+								decoding="async"
+								sizes="(min-width: 1280px) 1280px, 100vw"
+								class="max-h-[70vh] w-full object-cover"
+							/>
+						</picture>
 					{/if}
 				</div>
 			{/if}
@@ -247,7 +269,7 @@
 			<div class="min-w-0">
 				<div class="mb-8 flex items-center justify-between border-b border-[#d8d2c7] pb-3 text-sm lg:hidden">
 					<label for="entry-jump">{copy.jump}</label>
-					<select id="entry-jump" class="max-w-[65%] border border-[#d8d2c7] bg-transparent px-2 py-1" on:change={(event) => jumpToEntry(event.currentTarget.value)}>
+					<select id="entry-jump" class="min-h-12 max-w-[65%] border border-[#d8d2c7] bg-transparent px-3 py-2" on:change={(event) => jumpToEntry(event.currentTarget.value)}>
 						{#each journalEntries as entry}<option value={entry.id}>{entry.title}</option>{/each}
 					</select>
 				</div>
@@ -268,20 +290,38 @@
 									{:else if block.media?.src}
 										{@const mediaSrc = toCdn(block.media.src)}
 										<figure class={getLayoutClasses(block.media.layout)}>
-											<button type="button" class="block w-full cursor-zoom-in border-0 bg-transparent p-0" on:click={() => openFullscreen(mediaSrc, block.media.alt)} aria-label={block.media.alt || copy.openMedia}>
-												{#if isVideo(mediaSrc)}
-													<video src={mediaSrc} use:playWhenVisible={!hasLayout(block.media.layout, 'dontautostart')} loop={!hasLayout(block.media.layout, 'dontautostart')} muted={!hasLayout(block.media.layout, 'dontautostart')} playsinline controls={hasLayout(block.media.layout, 'dontautostart')} preload="none" class="block max-h-[75vh] w-full object-cover"><track kind="captions" /></video>
-												{:else}<img src={mediaSrc} srcset={cdnImageSrcset(mediaSrc)} alt={block.media.alt} loading="lazy" decoding="async" sizes="(min-width: 1024px) 780px, 100vw" class="block max-h-[75vh] w-full object-cover" />{/if}
-											</button>
-											{#if block.media.alt}<figcaption class="mt-2 text-sm text-[#6f6a61]">{block.media.alt}</figcaption>{/if}
+											{#if isVideo(mediaSrc)}
+												<video src={mediaSrc} controls playsinline preload="none" aria-label={block.media.alt} class="block max-h-[75vh] w-full object-cover"><track kind="captions" /></video>
+											{:else}
+												{@const dimensions = cdnImageDimensions(mediaSrc)}
+												<button type="button" class="block w-full cursor-zoom-in border-0 bg-transparent p-0" on:click={() => openFullscreen(mediaSrc, block.media.alt)} aria-label={block.media.alt || copy.openMedia}>
+													<img src={mediaSrc} srcset={cdnImageSrcset(mediaSrc)} width={dimensions?.width} height={dimensions?.height} alt={block.media.alt} loading="lazy" decoding="async" sizes="(min-width: 1024px) 780px, 100vw" class="block max-h-[75vh] w-full object-cover" />
+												</button>
+											{/if}
+											{#if block.media.caption}<figcaption class="mt-2 text-sm text-[#6f6a61]">{block.media.caption}</figcaption>{/if}
 										</figure>
 									{/if}
 								{/each}
 							</div>
 						</section>
 					{/each}
-				{/if}
-			</div>
+			{/if}
+
+			{#if data.relatedStories?.length}
+				<nav class="border-t border-[#d8d2c7] py-10" aria-label={copy.related}>
+					<h2 class="text-xl font-semibold">{copy.related}</h2>
+					<ul class="mt-4 grid gap-3 sm:grid-cols-2">
+						{#each data.relatedStories as story}
+							<li>
+								<a class="block min-h-12 border border-[#d8d2c7] p-4 hover:border-[#211f1b]" href={`${isDutch ? '/nl' : ''}/${story.slug}`}>
+									{story.title} →
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</nav>
+			{/if}
+		</div>
 		</div>
 
 		{#if data.leftoverImages.length > 0}
@@ -290,9 +330,14 @@
 				<div class="mt-6 grid grid-cols-2 gap-2 md:grid-cols-3">
 					{#each data.leftoverImages as item}
 						{@const src = toCdn(item.src)}
-						<button type="button" class="aspect-square overflow-hidden border-0 bg-[#e5e0d6] p-0" on:click={() => openFullscreen(src, item.alt)} aria-label={item.alt || copy.openMedia}>
-							{#if isVideo(src)}<video src={src} use:playWhenVisible={true} muted loop playsinline preload="none" class="h-full w-full object-cover"><track kind="captions" /></video>{:else}<img src={src} srcset={cdnImageSrcset(src)} alt={item.alt} loading="lazy" decoding="async" sizes="(min-width: 768px) 33vw, 50vw" class="h-full w-full object-cover" />{/if}
-						</button>
+						{@const dimensions = cdnImageDimensions(src)}
+						{#if isVideo(src)}
+							<video src={src} controls playsinline preload="none" aria-label={item.alt} class="aspect-square h-full w-full bg-[#e5e0d6] object-cover"><track kind="captions" /></video>
+						{:else}
+							<button type="button" class="aspect-square overflow-hidden border-0 bg-[#e5e0d6] p-0" on:click={() => openFullscreen(src, item.alt)} aria-label={item.alt || copy.openMedia}>
+								<img src={src} srcset={cdnImageSrcset(src)} width={dimensions?.width} height={dimensions?.height} alt={item.alt} loading="lazy" decoding="async" sizes="(min-width: 768px) 33vw, 50vw" class="h-full w-full object-cover" />
+							</button>
+						{/if}
 					{/each}
 				</div>
 			</section>
@@ -326,7 +371,7 @@
 {#if fullscreenMedia}
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" aria-label={fullscreenMedia.alt || copy.fullscreen}>
 		{#if fullscreenMedia.isVideo}<video src={fullscreenMedia.src} controls autoplay playsinline class="max-h-[90vh] max-w-[95vw]"><track kind="captions" /></video>{:else}<img src={fullscreenMedia.src} alt={fullscreenMedia.alt} class="max-h-[90vh] max-w-[95vw] object-contain" />{/if}
-		<button type="button" class="absolute right-4 top-4 size-10 border border-white/60 bg-black text-2xl text-white" on:click={closeFullscreen} aria-label={copy.close}>×</button>
+		<button type="button" class="absolute right-4 top-4 size-12 border border-white/60 bg-black text-2xl text-white" on:click={closeFullscreen} aria-label={copy.close}>×</button>
 	</div>
 {/if}
 

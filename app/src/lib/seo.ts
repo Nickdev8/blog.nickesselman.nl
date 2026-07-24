@@ -2,6 +2,11 @@ export const SITE_URL = 'https://blog.nickesselman.nl';
 export const SITE_NAME = "Nick's Blogs & Adventures";
 export const SITE_AUTHOR = 'Nick Esselman';
 export const SITE_AUTHOR_URL = 'https://nickesselman.nl';
+export const SITE_AUTHOR_PROFILES = [
+	SITE_AUTHOR_URL,
+	'https://github.com/Nickdev8',
+	'https://nl.linkedin.com/in/nick-esselman'
+];
 export const SITE_DESCRIPTION =
 	'Trip journals, build notes, and long-form travel stories by Nick Esselman.';
 export const DEFAULT_OG_IMAGE_PATH = '/og-image.jpg';
@@ -47,7 +52,8 @@ const createPersonReference = () => ({
 	'@type': 'Person',
 	'@id': `${SITE_AUTHOR_URL}/#person`,
 	name: SITE_AUTHOR,
-	url: SITE_AUTHOR_URL
+	url: SITE_AUTHOR_URL,
+	sameAs: SITE_AUTHOR_PROFILES
 });
 
 export const toAbsoluteUrl = (pathname = '/') => {
@@ -179,6 +185,39 @@ export const createAboutPageSchema = ({
 	primaryImageOfPage: toAbsoluteImage(image)
 });
 
+export const createProfilePageSchema = ({
+	description,
+	pathname,
+	image,
+	language = 'en',
+	name = `${SITE_AUTHOR} profile`
+}: {
+	description: string;
+	pathname: string;
+	image?: string;
+	language?: 'en' | 'nl';
+	name?: string;
+}): JsonLd => ({
+	'@context': 'https://schema.org',
+	'@type': 'ProfilePage',
+	'@id': `${toAbsoluteUrl(pathname)}#profile`,
+	name,
+	description,
+	url: toAbsoluteUrl(pathname),
+	inLanguage: language,
+	mainEntity: {
+		...createPersonReference(),
+		description,
+		image: toAbsoluteImage(image)
+	},
+	isPartOf: {
+		'@type': 'WebSite',
+		'@id': `${SITE_URL}/#website`,
+		name: SITE_NAME,
+		url: SITE_URL
+	}
+});
+
 export const createPersonSchema = ({
 	description,
 	image
@@ -188,11 +227,12 @@ export const createPersonSchema = ({
 }): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'Person',
+	'@id': `${SITE_AUTHOR_URL}/#person`,
 	name: SITE_AUTHOR,
 	url: SITE_AUTHOR_URL,
 	description,
 	image: toAbsoluteImage(image),
-	sameAs: [SITE_AUTHOR_URL]
+	sameAs: SITE_AUTHOR_PROFILES
 });
 
 export const createArticleSchema = ({

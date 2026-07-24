@@ -9,6 +9,7 @@ import {
 	createBreadcrumbSchema,
 	toAbsoluteUrl
 } from '$lib/seo';
+import { getLocalizedStoryMetadata, STORY_METADATA } from '$lib/storyMetadata';
 
 export const load: PageServerLoad = async (event) => {
 	const legacyRedirect = legacyPostRedirect(event.params.event);
@@ -34,19 +35,24 @@ export const load: PageServerLoad = async (event) => {
 
 	const translated = applyDutchTranslation(base as never, translation) as typeof base;
 	const pathname = `/nl/${event.params.event}`;
+	const storyMetadata = getLocalizedStoryMetadata(event.params.event, 'nl');
 	return {
 		...translated,
+		relatedStories: (storyMetadata?.related || [])
+			.map((slug) => STORY_METADATA[slug])
+			.filter(Boolean)
+			.map((story) => ({ slug: story.slug, title: story.title.nl })),
 		locale: 'nl' as const,
 		translationPending: false,
 		seo: {
 			...translated.seo,
-			title: `${translation.title} | ${SITE_NAME}`,
-			description: translation.description,
+			title: `${storyMetadata?.title || translation.title} | ${SITE_NAME}`,
+			description: storyMetadata?.description || translation.description,
 			canonical: toAbsoluteUrl(pathname),
 			structuredData: [
 				createArticleSchema({
-					headline: translation.title,
-					description: translation.description,
+					headline: storyMetadata?.title || translation.title,
+					description: storyMetadata?.description || translation.description,
 					pathname,
 					image: translated.seo.image,
 					datePublished: translated.seo.publishedTime,
