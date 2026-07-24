@@ -38,7 +38,7 @@ export const load: PageServerLoad = async (event) => {
 			description: seoDescription,
 			canonical: toAbsoluteUrl('/nl'),
 			structuredData: [
-				createWebsiteSchema({ pathname: '/nl', language: 'nl' }),
+				createWebsiteSchema({ language: 'nl' }),
 				createCollectionPageSchema({
 					name: 'Verhalen van onderweg',
 					description: seoDescription,

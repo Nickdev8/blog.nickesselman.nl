@@ -36,6 +36,12 @@ app/*/*.svg
 !app/static/me-w960.webp
 !app/static/arrow-cursor-outline.svg
 !app/static/hand-pointer.svg
+!app/static/favicon.svg
+!app/static/favicon-48.png
+!app/static/favicon-96.png
+!app/static/favicon-192.png
+!app/static/favicon-512.png
+!app/static/apple-touch-icon.png
 .env
 .env.*
 !.env.example

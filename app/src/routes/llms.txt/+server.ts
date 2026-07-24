@@ -36,7 +36,7 @@ export const GET: RequestHandler = () => {
 		: [];
 
 	const lines = [
-		"# Nick's Blogs & Adventures",
+		'# Nick Esselman’s Blog',
 		'',
 		'> Firsthand travel journals and build notes by Nick Esselman.',
 		'',

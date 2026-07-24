@@ -9,13 +9,13 @@
 	$: navLinks = [
 		{ href: isDutch ? '/nl' : '/', label: isDutch ? 'Verhalen' : 'Stories', external: false },
 		{ href: isDutch ? '/nl/about' : '/about', label: isDutch ? 'Over mij' : 'About', external: false },
-		{ href: 'https://contact.nickesselman.nl/?from=blog.nickesselman.nl', label: 'Contact', external: true }
+		{ href: 'https://contact.nickesselman.nl/?from=blog.nickesselman.nl', label: 'Contact Nick Esselman', external: true }
 	];
 </script>
 
 <header class="border-b border-[#d8d2c7] bg-[#f7f4ed]">
 	<nav class="site-container flex min-h-16 items-center justify-between gap-6 py-3" aria-label={isDutch ? 'Hoofdnavigatie' : 'Primary navigation'}>
-		<a href={isDutch ? '/nl' : '/'} class="hairline-link text-lg font-semibold tracking-[-0.02em]">Nick Esselman</a>
+		<a href={isDutch ? '/nl' : '/'} class="hairline-link text-lg font-semibold tracking-[-0.02em]">Nick Esselman’s Blog</a>
 
 		<div class="hidden items-center gap-7 text-sm md:flex">
 			{#each navLinks as link}

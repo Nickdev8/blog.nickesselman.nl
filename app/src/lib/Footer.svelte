@@ -4,7 +4,8 @@
 	$: links = [
 		{ href: isDutch ? '/nl' : '/', label: isDutch ? 'Verhalen' : 'Stories' },
 		{ href: isDutch ? '/nl/about' : '/about', label: isDutch ? 'Over mij' : 'About' },
-		{ href: 'https://contact.nickesselman.nl/?from=blog.nickesselman.nl', label: 'Contact' }
+		{ href: 'https://nickesselman.nl/', label: 'Portfolio' },
+		{ href: 'https://contact.nickesselman.nl/?from=blog.nickesselman.nl', label: 'Contact Nick Esselman' }
 	];
 </script>
 

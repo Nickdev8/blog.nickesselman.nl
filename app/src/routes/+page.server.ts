@@ -78,7 +78,7 @@ export const load: PageServerLoad = async () => {
 			image: seoImage,
 			imageAlt: liveEvent
 				? `Cover image for ${liveEvent.title}`
-				: "Cover image for Nick's Blogs & Adventures",
+				: 'Cover image for Nick Esselman’s Blog',
 			structuredData: [
 				createWebsiteSchema(),
 				createCollectionPageSchema({

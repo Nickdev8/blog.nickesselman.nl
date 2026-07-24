@@ -28,6 +28,11 @@ buildcommandlist.txt
 !static/me.webp
 !static/me-w480.webp
 !static/me-w960.webp
+!static/favicon-48.png
+!static/favicon-96.png
+!static/favicon-192.png
+!static/favicon-512.png
+!static/apple-touch-icon.png
 */*.jpg
 */*.jpeg
 /data/

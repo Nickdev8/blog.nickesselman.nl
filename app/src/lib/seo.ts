@@ -1,11 +1,11 @@
 export const SITE_URL = 'https://blog.nickesselman.nl';
-export const SITE_NAME = "Nick's Blogs & Adventures";
+export const SITE_NAME = 'Nick Esselman’s Blog';
 export const SITE_AUTHOR = 'Nick Esselman';
 export const SITE_AUTHOR_URL = 'https://nickesselman.nl';
 export const SITE_AUTHOR_PROFILES = [
-	SITE_AUTHOR_URL,
-	'https://github.com/Nickdev8',
-	'https://nl.linkedin.com/in/nick-esselman'
+	'https://github.com/nickdev8/',
+	'https://www.linkedin.com/in/nick-esselman/',
+	'https://www.instagram.com/nick.esselman/'
 ];
 export const SITE_DESCRIPTION =
 	'Trip journals, build notes, and long-form travel stories by Nick Esselman.';
@@ -105,17 +105,16 @@ export const defaultSeo = buildSeo();
 export const serializeJsonLd = (value: JsonLd) => JSON.stringify(value).replace(/</g, '\\u003c');
 
 export const createWebsiteSchema = ({
-	pathname = '/',
 	language = 'en'
 }: {
-	pathname?: string;
 	language?: 'en' | 'nl';
 } = {}): JsonLd => ({
 	'@context': 'https://schema.org',
 	'@type': 'WebSite',
-	'@id': `${toAbsoluteUrl(pathname)}#website`,
+	'@id': `${SITE_URL}/#website`,
 	name: SITE_NAME,
-	url: toAbsoluteUrl(pathname),
+	alternateName: 'blog.nickesselman.nl',
+	url: `${SITE_URL}/`,
 	description: SITE_DESCRIPTION,
 	inLanguage: language,
 	publisher: createPersonReference()
@@ -143,8 +142,9 @@ export const createCollectionPageSchema = ({
 	primaryImageOfPage: toAbsoluteImage(image),
 	isPartOf: {
 		'@type': 'WebSite',
+		'@id': `${SITE_URL}/#website`,
 		name: SITE_NAME,
-		url: SITE_URL
+		url: `${SITE_URL}/`
 	}
 });
 
