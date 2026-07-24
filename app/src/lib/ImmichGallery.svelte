@@ -16,13 +16,18 @@
 		originalUrl: string;
 		alt: string;
 		isVideo: boolean;
+		width?: number | null;
+		height?: number | null;
+		srcset?: string | null;
 	};
+	export let initialAssets: GalleryAsset[] = [];
 
 	let valid = false;
-	$: valid = Boolean(shareUrl && shareUrl.startsWith('http'));
+	$: valid =
+		initialAssets.length > 0 || Boolean(shareUrl && shareUrl.startsWith('http'));
 	$: isDutch = locale === 'nl';
 
-	let assets: GalleryAsset[] = [];
+	let galleryAssets: GalleryAsset[] = [...initialAssets];
 	let loading = false;
 	let errorMessage = '';
 	let abortController: AbortController | null = null;
@@ -51,7 +56,7 @@
 
 		loading = true;
 		errorMessage = '';
-		assets = [];
+		galleryAssets = [];
 
 		try {
 			const response = await fetch(`/api/immich?shareUrl=${encodeURIComponent(url)}`, {
@@ -67,7 +72,7 @@
 				return;
 			}
 
-			assets = Array.isArray(payload.assets) ? payload.assets : [];
+			galleryAssets = Array.isArray(payload.assets) ? payload.assets : [];
 		} catch (error) {
 			if ((error as Error).name === 'AbortError') {
 				return;
@@ -82,8 +87,11 @@
 	};
 
 	$: if (browser && shouldLoad && loadedUrl !== shareUrl) {
-		if (!valid) {
-			assets = [];
+		if (initialAssets.length > 0) {
+			galleryAssets = [...initialAssets];
+			loadedUrl = shareUrl;
+		} else if (!valid) {
+			galleryAssets = [];
 			errorMessage = '';
 			loading = false;
 		} else {
@@ -126,11 +134,11 @@
 			<p class="text-sm text-[#6f6a61]">{isDutch ? 'Gedeelde foto’s laden…' : 'Loading shared photos…'}</p>
 		{:else if errorMessage}
 			<p class="text-sm text-[#8b3f32]">{errorMessage}</p>
-		{:else if assets.length === 0}
+		{:else if galleryAssets.length === 0}
 			<p class="text-sm text-[#6f6a61]">{isDutch ? 'Er zijn nog geen gedeelde media beschikbaar.' : 'No shared media is available yet.'}</p>
 		{:else}
 			<div class="grid grid-cols-2 gap-2 md:grid-cols-3">
-				{#each assets as asset (asset.id)}
+				{#each galleryAssets as asset (asset.id)}
 					<button
 						type="button"
 						class="group relative aspect-square overflow-hidden border-0 bg-[#e5e0d6] p-0 focus:outline-none"
@@ -138,22 +146,22 @@
 						aria-label={`Open ${asset.alt || 'media'} fullscreen`}
 					>
 						{#if asset.isVideo}
-							<video
-								src={asset.previewUrl}
-								poster={asset.previewUrl}
-								muted
-								autoplay
-								loop
-								playsinline
-								preload="none"
-								class="pointer-events-none block h-full w-full object-cover"
-							>
-								<track kind="captions" />
-							</video>
-						{:else}
 							<img
 								src={asset.previewUrl}
 								alt={asset.alt}
+								width={asset.width || undefined}
+								height={asset.height || undefined}
+								loading="lazy"
+								decoding="async"
+								class="pointer-events-none block h-full w-full object-cover"
+							/>
+						{:else}
+							<img
+								src={asset.previewUrl}
+								srcset={asset.srcset || undefined}
+								alt={asset.alt}
+								width={asset.width || undefined}
+								height={asset.height || undefined}
 								loading="lazy"
 								decoding="async"
 								sizes="(min-width: 768px) 33vw, 50vw"

@@ -34,6 +34,8 @@ app/*/*.jpeg
 app/*/*.svg
 !app/static/me-w480.webp
 !app/static/me-w960.webp
+!app/static/arrow-cursor-outline.svg
+!app/static/hand-pointer.svg
 .env
 .env.*
 !.env.example

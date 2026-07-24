@@ -10,6 +10,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (pointer: fine) {
+	html,
+	body,
+	body * {
+		cursor: url('/arrow-cursor-outline.svg') 16 6, auto !important;
+	}
+
+	a,
+	a *,
+	button:not(:disabled),
+	button:not(:disabled) *,
+	summary,
+	summary *,
+	select:not(:disabled),
+	label[for],
+	[role='button'],
+	[role='button'] *,
+	input[type='button']:not(:disabled),
+	input[type='submit']:not(:disabled),
+	input[type='reset']:not(:disabled),
+	input[type='checkbox']:not(:disabled),
+	input[type='radio']:not(:disabled) {
+		cursor: url('/hand-pointer.svg') 13 2, pointer !important;
+	}
+}
+
 :root {
 	font-family: 'Space Grotesk', sans-serif;
 	color: #211f1b;

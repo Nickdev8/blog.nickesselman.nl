@@ -38,7 +38,7 @@ export const entries: EntryGenerator = () => {
 	}));
 };
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, fetch }) => {
 	const { event } = params;
 	const legacyRedirect = legacyPostRedirect(event);
 	if (legacyRedirect) throw redirect(308, legacyRedirect);
@@ -176,6 +176,13 @@ export const load: PageServerLoad = async ({ params }) => {
 	const scopedImmichEnvKey = `${envKeyBase}_IMMICH_ALBUM_URL`;
 	const envAlbum = env[scopedImmichEnvKey] || env.IMMICH_DEFAULT_ALBUM_URL;
 	const immichAlbum = mainData.immichAlbum || envAlbum || '';
+	const scopedGalleryManifestKey = `${envKeyBase}_GALLERY_MANIFEST_URL`;
+	const galleryManifestUrl =
+		mainData.galleryManifest ||
+		env[scopedGalleryManifestKey] ||
+		env.GALLERY_DEFAULT_MANIFEST_URL ||
+		'';
+	const galleryAssets = await loadPublishedGallery(galleryManifestUrl, fetch);
 
 	return {
 		posts,
@@ -195,6 +202,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			.filter(Boolean)
 			.map((story) => ({ slug: story.slug, title: story.title.en })),
 		immichAlbum,
+		galleryAssets,
 		sortOrder,
 		timezone: mainData.timezone || '',
 		timezoneLabel: mainData.timezone_label || '',
@@ -299,6 +307,46 @@ const replaceImmichShareLinks = async (input: string): Promise<string> => {
 	}
 
 	return output;
+};
+
+type PublishedGalleryAsset = {
+	id: string;
+	previewUrl: string;
+	originalUrl: string;
+	alt: string;
+	isVideo: boolean;
+	width?: number | null;
+	height?: number | null;
+	srcset?: string | null;
+};
+
+const publishedGalleryCache = new Map<
+	string,
+	{ assets: PublishedGalleryAsset[]; expiresAt: number }
+>();
+
+const loadPublishedGallery = async (
+	manifestUrl: string,
+	requestFetch: typeof fetch
+): Promise<PublishedGalleryAsset[]> => {
+	if (!manifestUrl) return [];
+	const cached = publishedGalleryCache.get(manifestUrl);
+	if (cached && cached.expiresAt > Date.now()) return cached.assets;
+	try {
+		const parsed = new URL(manifestUrl);
+		if (parsed.protocol !== 'https:' || parsed.hostname !== 'cdn.nickesselman.nl') return [];
+		const response = await requestFetch(parsed, { signal: AbortSignal.timeout(5_000) });
+		if (!response.ok) return cached?.assets || [];
+		const manifest = (await response.json()) as { assets?: PublishedGalleryAsset[] };
+		const assets = Array.isArray(manifest.assets) ? manifest.assets : [];
+		publishedGalleryCache.set(manifestUrl, {
+			assets,
+			expiresAt: Date.now() + 5 * 60 * 1000
+		});
+		return assets;
+	} catch {
+		return cached?.assets || [];
+	}
 };
 
 const resolveImmichShare = async (shareLink: string): Promise<string | null> => {

@@ -12,6 +12,7 @@
 		"validate:seo": "tsx scripts/validate-seo.ts",
 		"validate:rendered": "tsx scripts/validate-rendered-seo.ts",
 		"verify:cdn": "tsx scripts/verify-cdn-media.ts",
+		"snapshot:immich": "node scripts/snapshot-immich-album.mjs",
 		"lighthouse": "lhci autorun",
 		"quality": "npm run check && npm run validate:seo && npm run build && npm run validate:rendered"
 	},

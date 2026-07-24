@@ -36,6 +36,16 @@
 		coverImage: string;
 		coverImageAlt?: string;
 		immichAlbum?: string;
+		galleryAssets?: {
+			id: string;
+			previewUrl: string;
+			originalUrl: string;
+			alt: string;
+			isVideo: boolean;
+			width?: number | null;
+			height?: number | null;
+			srcset?: string | null;
+		}[];
 		timezone?: string;
 		timezoneLabel?: string;
 		sortOrder?: 'asc' | 'desc';
@@ -343,7 +353,12 @@
 			</section>
 		{/if}
 
-		<ImmichGallery shareUrl={immichAlbum} title={readableTitle} locale={data.locale} />
+		<ImmichGallery
+			shareUrl={immichAlbum}
+			initialAssets={data.galleryAssets || []}
+			title={readableTitle}
+			locale={data.locale}
+		/>
 
 		<section class="site-container mt-16 border-t border-[#d8d2c7] pt-10" aria-labelledby="reader-note">
 			<div class="max-w-2xl">
