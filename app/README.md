@@ -86,6 +86,10 @@ The variant endpoint accepts only the three widths above and only `/blogimages/`
 
 Upload the original before publishing its Markdown reference. No manual WebP conversion or Cloudflare cache purge is needed. Add its original dimensions to `src/data/media-manifest.json` when practical to prevent layout shift.
 
+## Private-note notifications
+
+Reader notes are saved locally in `data/readers.json`. After a successful save, the blog posts a metadata-only alert to `https://ntfy.sh/blognickesselmannotes`: it contains the story title and a link, never the visitor's name or note text. The topic is public, so do not add private note content to its notification payload. Notification delivery never changes the visitor-facing confirmation.
+
 ## Project Layout
 
 ```

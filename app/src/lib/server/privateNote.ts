@@ -1,12 +1,12 @@
 import { dev } from '$app/environment';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
-import nodemailer from 'nodemailer';
 import { mutateReaderDB } from '$lib/server/readerStore';
 
 const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
 const TURNSTILE_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const NTFY_NOTES_URL = 'https://ntfy.sh/blognickesselmannotes';
 
 export const getTurnstileSiteKey = () =>
 	dev ? TURNSTILE_TEST_SITE_KEY : publicEnv.PUBLIC_TURNSTILE_SITE_KEY || '';
@@ -38,16 +38,6 @@ const verifyTurnstile = async (fetcher: typeof globalThis.fetch, token: string, 
 	}
 };
 
-const createTransporter = () => {
-	if (!privateEnv.SMTP_HOST || !privateEnv.SMTP_PORT || !privateEnv.SMTP_USER || !privateEnv.SMTP_PASSWORD || !privateEnv.EMAIL_FROM || !privateEnv.EMAIL_TO) return null;
-	return nodemailer.createTransport({
-		host: privateEnv.SMTP_HOST,
-		port: Number(privateEnv.SMTP_PORT),
-		secure: privateEnv.SMTP_SECURE === 'true',
-		auth: { user: privateEnv.SMTP_USER, pass: privateEnv.SMTP_PASSWORD }
-	});
-};
-
 export type PrivateNoteInput = {
 	name: string;
 	message: string;
@@ -59,6 +49,22 @@ export type PrivateNoteInput = {
 	remoteIp?: string;
 };
 
+const notifyAboutPrivateNote = async (input: PrivateNoteInput, fetcher: typeof globalThis.fetch) => {
+	const response = await fetcher(NTFY_NOTES_URL, {
+		method: 'POST',
+		headers: {
+			'content-type': 'text/plain; charset=utf-8',
+			'Title': 'New private blog note',
+			'Tags': 'memo',
+			'Click': `https://blog.nickesselman.nl${input.path}`
+		},
+		// ntfy.sh public topics are readable by anyone who knows the topic name.
+		// Keep the visitor's name and private message in the local reader store only.
+		body: `A new private note was left on ${input.storyTitle.replace(/[\r\n]+/g, ' ')}.`
+	});
+	return response.ok;
+};
+
 export const savePrivateNote = async (input: PrivateNoteInput, fetcher: typeof globalThis.fetch) => {
 	const verified = await verifyTurnstile(fetcher, input.turnstileToken, input.remoteIp);
 	if (!verified) return { ok: false as const, status: 400, error: 'Please complete the spam check and try again.' };
@@ -66,32 +72,20 @@ export const savePrivateNote = async (input: PrivateNoteInput, fetcher: typeof g
 	const id = crypto.randomUUID();
 	const createdAt = Date.now();
 	await mutateReaderDB((db) => {
-		db.rows.push({ kind: 'note', id, anon_id: input.anonId, event: input.event, path: input.path, name: input.name, message: input.message, email_status: 'pending', created_at: createdAt });
+		db.rows.push({ kind: 'note', id, anon_id: input.anonId, event: input.event, path: input.path, name: input.name, message: input.message, notification_status: 'pending', created_at: createdAt });
 	});
 
-	let emailStatus: 'sent' | 'failed' = 'failed';
-	const transporter = createTransporter();
-	if (transporter) {
-		const timestamp = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'Europe/Amsterdam' }).format(new Date(createdAt));
-		try {
-			await transporter.sendMail({
-				from: privateEnv.EMAIL_FROM,
-				to: privateEnv.EMAIL_TO,
-				subject: `Private blog note: ${input.storyTitle.replace(/[\r\n]+/g, ' ')}`,
-				text: [`Story: ${input.storyTitle}`, `Page: ${input.path}`, `Name: ${input.name}`, `Sent: ${timestamp}`, '', input.message].join('\n')
-			});
-			emailStatus = 'sent';
-		} catch {
-			console.error('Private blog note email delivery failed', { noteId: id, event: input.event });
-		}
-	} else {
-		console.error('Private blog note SMTP configuration is incomplete', { noteId: id });
+	let notificationStatus: 'sent' | 'failed' = 'failed';
+	try {
+		notificationStatus = (await notifyAboutPrivateNote(input, fetcher)) ? 'sent' : 'failed';
+	} catch {
+		console.error('Private blog note ntfy delivery failed', { noteId: id, event: input.event });
 	}
 
 	await mutateReaderDB((db) => {
 		const row = db.rows.find((entry) => entry.kind === 'note' && entry.id === id);
-		if (row?.kind === 'note') row.email_status = emailStatus;
+		if (row?.kind === 'note') row.notification_status = notificationStatus;
 	});
 
-	return { ok: true as const, emailStatus };
+	return { ok: true as const, notificationStatus };
 };

@@ -266,7 +266,7 @@
 								<strong>{note.name}</strong>
 								<span>{note.storyTitle}</span>
 								<span>{formatDate(note.createdAt)}</span>
-								<span class:delivery-failed={note.emailStatus === 'failed'}>{note.emailStatus}</span>
+								<span class:delivery-failed={note.notificationStatus === 'failed'}>{note.notificationStatus}</span>
 							</div>
 							<p>{note.message}</p>
 						</article>

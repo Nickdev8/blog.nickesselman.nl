@@ -24,7 +24,6 @@
 		"@tailwindcss/typography": "^0.5.12",
 		"@types/eslint": "8.56.0",
 		"@types/node": "^24.0.15",
-		"@types/nodemailer": "^7.0.3",
 		"@types/svelte-leafletjs": "^0.8.7",
 		"autoprefixer": "^10.4.19",
 		"eslint": "^8.56.0",
@@ -48,7 +47,6 @@
 		"lucide-svelte": "^0.533.0",
 		"marked": "^16.1.1",
 		"mdsvex": "^0.11.0",
-		"nodemailer": "^7.0.5",
 		"svelte-email": "^0.0.4",
 		"svelte-leafletjs": "^1.0.1"
 	},

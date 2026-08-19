@@ -279,10 +279,7 @@ export const actions: Actions = {
 		}, fetch);
 
 		if (!result.ok) return fail(result.status, { ...invalid, noteError: result.error });
-		return {
-			noteSuccess: true,
-			noteWarning: result.emailStatus === 'failed' ? 'Your note was saved, but the email notification is delayed.' : undefined
-		};
+		return { noteSuccess: true };
 	}
 };
 const renderMarkdown = (input: string) => {

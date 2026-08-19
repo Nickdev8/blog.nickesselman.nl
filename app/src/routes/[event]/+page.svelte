@@ -11,7 +11,7 @@
 	import { getOrCreateReaderId, trackReaderEvent } from '$lib/readerTracking';
 
 	export let form: ActionData;
-	type NoteForm = { noteSuccess?: boolean; noteWarning?: string; noteError?: string; noteName?: string; noteMessage?: string };
+	type NoteForm = { noteSuccess?: boolean; noteError?: string; noteName?: string; noteMessage?: string };
 	$: noteForm = form as NoteForm | undefined;
 	export let data: {
 		locale?: 'en' | 'nl';
@@ -366,7 +366,6 @@
 				<p class="mt-2 leading-7 text-[#6f6a61]">{copy.noteIntro}</p>
 				{#if noteSubmitted || noteForm?.noteSuccess}
 					<p class="mt-5 border-l-2 border-[#735f3d] pl-4">{copy.noteThanks}</p>
-					{#if noteForm?.noteWarning}<p class="mt-2 text-sm text-[#8b3f32]">{noteForm.noteWarning}</p>{/if}
 				{:else}
 					<form method="POST" action="?/note" class="mt-6 space-y-5" on:focusin={loadTurnstile} on:pointerenter={loadTurnstile} use:enhance={() => async ({ result, update }) => { await update({ reset: result.type === 'success' }); if (result.type === 'success') noteSubmitted = true; else resetTurnstile(); }}>
 						<input type="hidden" name="readerId" value={readerId} />

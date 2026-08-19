@@ -316,7 +316,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				storyTitle: titleMap.get(row.event) || row.event,
 				name: row.name,
 				message: row.message,
-				emailStatus: row.email_status,
+				notificationStatus: row.notification_status || row.email_status || 'pending',
 				createdAt: row.created_at
 			}))
 			.sort((a, b) => b.createdAt - a.createdAt),

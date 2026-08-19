@@ -45,7 +45,9 @@ export type ReaderRow =
 			path: string;
 			name: string;
 			message: string;
-			email_status: 'pending' | 'sent' | 'failed';
+			notification_status: 'pending' | 'sent' | 'failed';
+			// Retained only so existing stored notes remain readable after the ntfy migration.
+			email_status?: 'pending' | 'sent' | 'failed';
 			created_at: number;
 	  };
 
