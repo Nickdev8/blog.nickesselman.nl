@@ -109,7 +109,8 @@ export const GET: RequestHandler = async ({ params, request }) => {
 	if (!isSameOriginBrowserRequest(request)) throw error(403, 'Cross-origin image requests are not allowed');
 	if (!ALLOWED_WIDTHS.has(params.width)) throw error(404, 'Image size not found');
 	const sourcePath = safeImagePath(params.path);
-	const relativeCachePath = sourcePath.join('/').replace(/\.(?:jpe?g|png|webp)$/i, `-w${params.width}.webp`);
+	// Preserve the original extension: `photo.png` and `photo.webp` can both exist in a story.
+	const relativeCachePath = `${sourcePath.join('/')}-w${params.width}.webp`;
 	const cachePath = path.join(CACHE_ROOT, relativeCachePath);
 	let variant: Buffer;
 	try {
