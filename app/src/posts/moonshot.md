@@ -14,8 +14,6 @@ title: "The Start"
 date: "2025-12-9"
 ---
 
-![DiscoPrullenbak](nas aaide de koe)
-
 ## **What is Moonshot**
 Moonshot is another HackClub event, where you make a project with 75+ hours.  
 You get to go to Orlando, Florida, Universal Studios, and take a tour at Kennedy Space Center.
