@@ -55,6 +55,8 @@ A Strandbeest is basically a mechanical structure that can walk using a bunch of
 
 The plan was pretty simple. Everyone was split into teams, and each team had to build one leg. Once all the legs were finished, we'd put them together into one giant Strandbeest.
 
+![](/blogimages/beest/meholdingaleg.jpg)
+
 The teams had already been made by the time I arrived, so I joined Alice's team.
 
 We started putting our leg together, and it didn't take long before we found our first problem.
@@ -71,9 +73,11 @@ After a lot of figuring out which piece went where, our leg slowly started looki
 
 Eventually, the first two legs were finished.
 
+![](/blogimages/beest/2legscomingtogether.jpg)
+
 And that's when the original team structure kind of disappeared.
 
-Organized Chaos
+## Organized Chaos
 
 Once those first two legs were done, everyone started doing different things.
 
@@ -94,7 +98,7 @@ Slowly, the final frame started taking shape. We managed to get the first two le
 
 There was just one problem.
 
-We Need M8s
+## We Need M8s
 
 The final assembly needed three stabilizing rods to hold everything together. The design required us to clamp pieces of plywood between two bolts.
 
