@@ -80,7 +80,7 @@ coverImage: /blogimages/beest/cover.jpg
 ![](/blogimages/beest/anyimageforanyproject.jpg)
 ```
 
-The page rewrites those paths to the CDN for the original image. For JPG, PNG, and WebP images, it also asks this blog for responsive WebP variants at `/_image/480/...`, `/_image/960/...`, and `/_image/1600/...`. On a cache miss, the blog downloads the original only from `https://cdn.nickesselman.nl/blogimages/`, generates the requested WebP with `ffmpeg`, and persists it under `app/data/image-variants/`. Generated variants are never uploaded to the CDN.
+The page rewrites those paths to the CDN for the original image. For JPG, PNG, and WebP images, it also asks this blog for responsive JPEG variants at `/_image/480/...`, `/_image/960/...`, and `/_image/1600/...`. On a cache miss, the blog downloads the original only from `https://cdn.nickesselman.nl/blogimages/`, generates the requested JPEG with `ffmpeg`, and persists it under `app/data/image-variants/`. Generated variants are never uploaded to the CDN.
 
 The variant endpoint accepts only the three widths above and only `/blogimages/` raster paths. It sends no CORS permission header, rejects cross-site browser requests, and uses `Cross-Origin-Resource-Policy: same-origin` so other websites cannot embed the variants. This is hotlink protection for browsers, not access control: do not use public image paths for private media.
 

@@ -2,6 +2,7 @@ import mediaManifest from '../data/media-manifest.json';
 
 const CDN_IMAGE_PATTERN = /^https:\/\/cdn\.nickesselman\.nl\/(blogimages\/.+\.(?:jpe?g|png|webp))(?:[?#].*)?$/i;
 const RESPONSIVE_WIDTHS = [480, 960, 1600] as const;
+const VARIANT_VERSION = '2';
 const IMAGE_DIMENSIONS = mediaManifest as Record<string, { width: number; height: number }>;
 
 export const cdnImageSrcset = (src?: string) => {
@@ -9,7 +10,7 @@ export const cdnImageSrcset = (src?: string) => {
 	const match = src.match(CDN_IMAGE_PATTERN);
 	if (!match) return undefined;
 	const [, path] = match;
-	return RESPONSIVE_WIDTHS.map((width) => `/_image/${width}/${path} ${width}w`).join(', ');
+	return RESPONSIVE_WIDTHS.map((width) => `/_image/${width}/${path}?v=${VARIANT_VERSION} ${width}w`).join(', ');
 };
 
 export const cdnImageVariant = (
@@ -20,7 +21,7 @@ export const cdnImageVariant = (
 	const match = src.match(CDN_IMAGE_PATTERN);
 	if (!match) return undefined;
 	const [, path] = match;
-	return `/_image/${width}/${path}`;
+	return `/_image/${width}/${path}?v=${VARIANT_VERSION}`;
 };
 
 export const cdnImageDimensions = (src?: string) => {

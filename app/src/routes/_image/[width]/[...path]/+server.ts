@@ -11,7 +11,7 @@ const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 const pending = new Map<string, Promise<Buffer>>();
 
 const cacheHeaders = {
-	'content-type': 'image/webp',
+	'content-type': 'image/jpeg',
 	'cache-control': 'public, max-age=31536000, immutable',
 	// Do not allow another origin to render this response as an image.
 	'cross-origin-resource-policy': 'same-origin',
@@ -52,13 +52,11 @@ const createVariant = async (source: Buffer, width: string) =>
 			'-frames:v',
 			'1',
 			'-c:v',
-			'libwebp',
-			'-quality',
-			'80',
-			'-compression_level',
-			'4',
+			'mjpeg',
+			'-q:v',
+			'3',
 			'-f',
-			'webp',
+			'image2pipe',
 			'pipe:1'
 		]);
 		const chunks: Buffer[] = [];
@@ -110,7 +108,7 @@ export const GET: RequestHandler = async ({ params, request }) => {
 	if (!ALLOWED_WIDTHS.has(params.width)) throw error(404, 'Image size not found');
 	const sourcePath = safeImagePath(params.path);
 	// Preserve the original extension: `photo.png` and `photo.webp` can both exist in a story.
-	const relativeCachePath = `${sourcePath.join('/')}-w${params.width}.webp`;
+	const relativeCachePath = `${sourcePath.join('/')}-w${params.width}.jpg`;
 	const cachePath = path.join(CACHE_ROOT, relativeCachePath);
 	let variant: Buffer;
 	try {
