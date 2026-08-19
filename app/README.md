@@ -69,6 +69,23 @@ The generator only retranslates posts whose source Markdown or protected-word li
 * **Reverse proxy:** nginx
 * **Storage:** JSON files (`reactions.json`, `reaction-types.json`)
 
+## Blog images and local variants
+
+Store original blog images on the CDN at `/srv/services/cdn/blogimages/<story>/<filename>`. In post Markdown and frontmatter, always use the short CDN path:
+
+```md
+coverImage: /blogimages/beest/cover.jpg
+
+![](/blogimages/beest/cover.jpg)
+![](/blogimages/beest/anyimageforanyproject.jpg)
+```
+
+The page rewrites those paths to the CDN for the original image. For JPG, PNG, and WebP images, it also asks this blog for responsive WebP variants at `/_image/480/...`, `/_image/960/...`, and `/_image/1600/...`. On a cache miss, the blog downloads the original only from `https://cdn.nickesselman.nl/blogimages/`, generates the requested WebP with `ffmpeg`, and persists it under `app/data/image-variants/`. Generated variants are never uploaded to the CDN.
+
+The variant endpoint accepts only the three widths above and only `/blogimages/` raster paths. It sends no CORS permission header, rejects cross-site browser requests, and uses `Cross-Origin-Resource-Policy: same-origin` so other websites cannot embed the variants. This is hotlink protection for browsers, not access control: do not use public image paths for private media.
+
+Upload the original before publishing its Markdown reference. No manual WebP conversion or Cloudflare cache purge is needed. Add its original dimensions to `src/data/media-manifest.json` when practical to prevent layout shift.
+
 ## Project Layout
 
 ```

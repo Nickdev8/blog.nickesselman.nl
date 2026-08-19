@@ -10,6 +10,9 @@ RUN npm prune --omit=dev --no-audit --no-fund
 
 FROM node:20-bookworm AS runtime
 WORKDIR /app
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends ffmpeg \
+	&& rm -rf /var/lib/apt/lists/*
 COPY --from=builder /work/node_modules ./node_modules
 COPY --from=builder /work/build ./build
 COPY --from=builder /work/scripts ./scripts

@@ -1,6 +1,6 @@
 import mediaManifest from '../data/media-manifest.json';
 
-const CDN_IMAGE_PATTERN = /^(https:\/\/cdn\.nickesselman\.nl\/.+)\.(?:jpe?g|png|webp)([?#].*)?$/i;
+const CDN_IMAGE_PATTERN = /^https:\/\/cdn\.nickesselman\.nl\/(blogimages\/.+\.(?:jpe?g|png|webp))(?:[?#].*)?$/i;
 const RESPONSIVE_WIDTHS = [480, 960, 1600] as const;
 const IMAGE_DIMENSIONS = mediaManifest as Record<string, { width: number; height: number }>;
 
@@ -8,8 +8,8 @@ export const cdnImageSrcset = (src?: string) => {
 	if (!src || /-w(?:480|960|1600)\.webp(?:[?#].*)?$/i.test(src)) return undefined;
 	const match = src.match(CDN_IMAGE_PATTERN);
 	if (!match) return undefined;
-	const [, base, suffix = ''] = match;
-	return RESPONSIVE_WIDTHS.map((width) => `${base}-w${width}.webp${suffix} ${width}w`).join(', ');
+	const [, path] = match;
+	return RESPONSIVE_WIDTHS.map((width) => `/_image/${width}/${path} ${width}w`).join(', ');
 };
 
 export const cdnImageVariant = (
@@ -19,8 +19,8 @@ export const cdnImageVariant = (
 	if (!src) return undefined;
 	const match = src.match(CDN_IMAGE_PATTERN);
 	if (!match) return undefined;
-	const [, base, suffix = ''] = match;
-	return `${base}-w${width}.webp${suffix}`;
+	const [, path] = match;
+	return `/_image/${width}/${path}`;
 };
 
 export const cdnImageDimensions = (src?: string) => {
