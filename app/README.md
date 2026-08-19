@@ -88,7 +88,7 @@ Upload the original before publishing its Markdown reference. No manual WebP con
 
 ## Private-note notifications
 
-Reader notes are saved locally in `data/readers.json`. After a successful save, the blog posts a metadata-only alert to `https://ntfy.sh/blognickesselmannotes`: it contains the story title and a link, never the visitor's name or note text. The topic is public, so do not add private note content to its notification payload. Notification delivery never changes the visitor-facing confirmation.
+Reader notes are saved locally in `data/readers.json`. After a successful save, the blog posts the story title, sender name, and full note text to `https://ntfy.sh/blognickesselmannotes`. This topic is public, so it must not be described as private and must not be used for sensitive messages. Notification delivery never changes the visitor-facing confirmation.
 
 ## Project Layout
 

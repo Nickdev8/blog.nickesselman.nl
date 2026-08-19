@@ -50,17 +50,17 @@ export type PrivateNoteInput = {
 };
 
 const notifyAboutPrivateNote = async (input: PrivateNoteInput, fetcher: typeof globalThis.fetch) => {
+	const sender = input.name.replace(/[\r\n]+/g, ' ').trim();
+	const storyTitle = input.storyTitle.replace(/[\r\n]+/g, ' ').trim();
 	const response = await fetcher(NTFY_NOTES_URL, {
 		method: 'POST',
 		headers: {
 			'content-type': 'text/plain; charset=utf-8',
-			'Title': 'New private blog note',
+			'Title': `New blog note from ${sender}`,
 			'Tags': 'memo',
 			'Click': `https://blog.nickesselman.nl${input.path}`
 		},
-		// ntfy.sh public topics are readable by anyone who knows the topic name.
-		// Keep the visitor's name and private message in the local reader store only.
-		body: `A new private note was left on ${input.storyTitle.replace(/[\r\n]+/g, ' ')}.`
+		body: [`Story: ${storyTitle}`, `From: ${sender}`, '', input.message].join('\n')
 	});
 	return response.ok;
 };

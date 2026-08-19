@@ -60,8 +60,8 @@
 			storyEntries: 'Delen van het verhaal', earliest: 'Oudste', latest: 'Nieuwste', jump: 'Ga naar deel',
 			empty: 'Er zijn nog geen delen.', day: 'Dag', openMedia: 'Open media op volledig scherm', more: 'Meer van de reis',
 			related: 'Gerelateerde verhalen',
-			noteTitle: 'Laat een privébericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven. Alleen ik kan dit lezen.',
-			noteThanks: 'Bedankt voor het lezen. Je bericht is privé opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur privébericht', fullscreen: 'Media op volledig scherm'
+			noteTitle: 'Laat een bericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven.',
+			noteThanks: 'Bedankt voor het lezen. Je bericht is opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur bericht', fullscreen: 'Media op volledig scherm'
 		}
 		: {
 			close: 'Close', allStories: 'All stories', entry: 'entry', entries: 'entries', updated: 'Updated',
@@ -69,8 +69,8 @@
 			storyEntries: 'Story entries', earliest: 'Earliest', latest: 'Latest', jump: 'Jump to entry',
 			empty: 'No entries just yet.', day: 'Day', openMedia: 'Open media fullscreen', more: 'More from the trip',
 			related: 'Related stories',
-			noteTitle: 'Leave me a private note', noteIntro: 'Tell me you were here, or share what stayed with you. Only I can read it.',
-			noteThanks: 'Thanks for reading. Your note is private and saved.', name: 'Your name', note: 'Your note', send: 'Send private note', fullscreen: 'Fullscreen media'
+			noteTitle: 'Leave me a note', noteIntro: 'Tell me you were here, or share what stayed with you.',
+			noteThanks: 'Thanks for reading. Your note was saved.', name: 'Your name', note: 'Your note', send: 'Send note', fullscreen: 'Fullscreen media'
 		};
 
 	const CDN_BASE = 'https://cdn.nickesselman.nl';
