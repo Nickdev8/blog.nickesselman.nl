@@ -1,5 +1,5 @@
 ---
-title: "Undercity"
+title: "Undercity, San Fransisco"
 description: "A multi-day hardware hackathon at GitHub HQ, where I built cool stuff and made unforgettable memories."
 coverImage: /blogimages/undercity/group.webp
 warning: "This post is Done"
