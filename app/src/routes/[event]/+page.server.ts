@@ -207,7 +207,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 		timezone: mainData.timezone || '',
 		timezoneLabel: mainData.timezone_label || '',
 		seo: buildSeo({
-			title: seoTitle,
+			title: titleBase,
 			appendSiteName: false,
 			description: seoDescription,
 			pathname: `/${eventName}`,
