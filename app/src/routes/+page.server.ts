@@ -67,7 +67,8 @@ export const load: PageServerLoad = async () => {
 		events,
 		locale: 'en',
 		seo: buildSeo({
-			title: 'Travel Journals & Build Notes',
+			title: 'Nick Esselman’s Blog',
+			appendSiteName: false,
 			description: seoDescription,
 			pathname: '/',
 			alternates: {

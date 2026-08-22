@@ -34,7 +34,7 @@ export const load: PageServerLoad = async (event) => {
 		translationPending,
 		seo: {
 			...base.seo,
-			title: `Verhalen van onderweg | ${SITE_NAME}`,
+			title: SITE_NAME,
 			description: seoDescription,
 			canonical: toAbsoluteUrl('/nl'),
 			structuredData: [

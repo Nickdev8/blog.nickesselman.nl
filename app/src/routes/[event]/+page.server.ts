@@ -208,6 +208,7 @@ export const load: PageServerLoad = async ({ params, fetch }) => {
 		timezoneLabel: mainData.timezone_label || '',
 		seo: buildSeo({
 			title: seoTitle,
+			appendSiteName: false,
 			description: seoDescription,
 			pathname: `/${eventName}`,
 			alternates: {

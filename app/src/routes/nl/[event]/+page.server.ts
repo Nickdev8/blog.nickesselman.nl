@@ -4,7 +4,6 @@ import { load as loadEnglish, actions as englishActions } from '../../[event]/+p
 import { applyDutchTranslation, readDutchTranslation } from '$lib/server/dutchTranslations';
 import { legacyPostRedirect } from '$lib/postRoutes';
 import {
-	SITE_NAME,
 	createArticleSchema,
 	createBreadcrumbSchema,
 	toAbsoluteUrl
@@ -46,7 +45,7 @@ export const load: PageServerLoad = async (event) => {
 		translationPending: false,
 		seo: {
 			...translated.seo,
-			title: `${storyMetadata?.title || translation.title} | ${SITE_NAME}`,
+			title: storyMetadata?.title || translation.title,
 			description: storyMetadata?.description || translation.description,
 			canonical: toAbsoluteUrl(pathname),
 			structuredData: [

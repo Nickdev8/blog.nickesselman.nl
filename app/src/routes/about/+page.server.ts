@@ -118,6 +118,7 @@ export async function load() {
 		locale: 'en',
 		seo: buildSeo({
 			title: 'About Nick',
+			appendSiteName: false,
 			description: seoDescription,
 			pathname: '/about',
 			alternates: {

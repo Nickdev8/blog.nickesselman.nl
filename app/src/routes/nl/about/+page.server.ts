@@ -1,7 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { load as loadEnglish } from '../../about/+page.server';
 import {
-	SITE_NAME,
 	createBreadcrumbSchema,
 	createPersonSchema,
 	createProfilePageSchema,
@@ -17,7 +16,7 @@ export const load: PageServerLoad = async (event) => {
 		locale: 'nl' as const,
 		seo: {
 			...base.seo,
-			title: `Over Nick | ${SITE_NAME}`,
+			title: 'About Nick',
 			description,
 			canonical: toAbsoluteUrl('/nl/about'),
 			structuredData: [

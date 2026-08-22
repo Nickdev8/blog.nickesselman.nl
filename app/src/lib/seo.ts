@@ -46,6 +46,7 @@ type BuildSeoInput = {
 	alternates?: SeoData['alternates'];
 	publishedTime?: string;
 	modifiedTime?: string;
+	appendSiteName?: boolean;
 };
 
 const createPersonReference = () => ({
@@ -85,9 +86,10 @@ export const buildSeo = ({
 	structuredData = [],
 	alternates,
 	publishedTime,
-	modifiedTime
+	modifiedTime,
+	appendSiteName = true
 }: BuildSeoInput = {}): SeoData => ({
-	title: title ? `${title} | ${SITE_NAME}` : SITE_NAME,
+	title: title ? (appendSiteName ? `${title} | ${SITE_NAME}` : title) : SITE_NAME,
 	description,
 	canonical: toAbsoluteUrl(pathname),
 	robots,
