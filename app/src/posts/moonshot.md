@@ -1,5 +1,5 @@
 ---
-title: "Florida"
+title: "Moonshot, Florida"
 description: "A chaotic, unforgettable trip to Florida for Hack Club Moonshot. From Orlando and Kennedy Space Center to Miami, New York, and way too many strange little adventures along the way."
 coverImage: /blogimages/moonshot/cover.png
 warning: "This post is Done"

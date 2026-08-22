@@ -1,5 +1,5 @@
 ---
-title: "Boston"
+title: "Shipwrecked, Boston"
 description: "An upcoming adventure with Hack Club. Stay tuned for the full story of what happened at Shipwrecked!"
 coverImage: /blogimages/shipwrecked/campfiremain.jpg
 warning: "Shipwrecked was amazing! tysm!"
