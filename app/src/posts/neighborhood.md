@@ -1,5 +1,5 @@
 ---
-title:  "San Fransico"
+title:  "Neighborhood"
 description: A diary of my month-long journey in San Francisco with Hack Club. A story of coding, new friends, personal growth, and navigating the chaotic, beautiful, and unexpected moments of building and living in a community of makers.
 coverImage: /blogimages/neighborhood/grouppicrutre.jpg
 warning: "This post is Done"
