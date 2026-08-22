@@ -1,5 +1,5 @@
 ---
-title: "Beest"
+title: "Beest, The Netherlands"
 description: "A last-minute Hack Club adventure in The Hague, building a Strandbeest with a bunch of hackers."
 coverImage: /blogimages/beest/groupphoto.jpg
 sort_order: 'asc'
