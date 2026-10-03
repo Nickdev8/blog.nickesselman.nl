@@ -255,9 +255,9 @@
 		</section>
 
 		<section class="section">
-			<h2>Private reader notes</h2>
+			<h2>Reader notes</h2>
 			{#if data.notes.length === 0}
-				<p class="muted">No private notes yet.</p>
+				<p class="muted">No reader notes yet.</p>
 			{:else}
 				<div class="notes-list">
 					{#each data.notes as note}
@@ -266,9 +266,16 @@
 								<strong>{note.name}</strong>
 								<span>{note.storyTitle}</span>
 								<span>{formatDate(note.createdAt)}</span>
-								<span class:delivery-failed={note.notificationStatus === 'failed'}>{note.notificationStatus}</span>
+								<span class:delivery-failed={note.notificationStatus === 'failed'} title={note.notificationError || ''}>{note.notificationStatus}</span>
 							</div>
 							<p>{note.message}</p>
+							{#if note.notificationStatus !== 'sent'}
+								{#if note.notificationError}<p class="delivery-detail">Delivery error: {note.notificationError}</p>{/if}
+								<form method="POST" action="?/retryNote">
+									<input type="hidden" name="id" value={note.id} />
+									<button class="button ghost" type="submit">Retry ntfy delivery</button>
+								</form>
+							{/if}
 						</article>
 					{/each}
 				</div>
@@ -445,6 +452,11 @@
 	}
 
 	.delivery-failed {
+		color: rgb(255, 128, 128);
+	}
+
+	.note .delivery-detail {
+		font-size: 0.8rem;
 		color: rgb(255, 128, 128);
 	}
 

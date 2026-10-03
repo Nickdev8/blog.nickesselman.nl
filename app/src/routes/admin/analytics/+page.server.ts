@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import type { PageServerLoad } from './$types';
-import { readReaderDB, type ReaderRow } from '$lib/server/readerStore';
+import type { Actions, PageServerLoad } from './$types';
+import { fail } from '@sveltejs/kit';
+import { mutateReaderDB, readReaderDB, type ReaderRow } from '$lib/server/readerStore';
+import { notifyAboutPrivateNote } from '$lib/server/privateNote';
 import { buildSeo } from '$lib/seo';
 
 type PostSummary = {
@@ -316,7 +318,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 				storyTitle: titleMap.get(row.event) || row.event,
 				name: row.name,
 				message: row.message,
-				notificationStatus: row.notification_status || row.email_status || 'pending',
+				notificationStatus: row.notification_status || 'pending',
+				notificationError: row.notification_error,
 				createdAt: row.created_at
 			}))
 			.sort((a, b) => b.createdAt - a.createdAt),
@@ -329,4 +332,33 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			.sort((a, b) => a.name.localeCompare(b.name)),
 		visitSeries: buildVisitSeries(visitRows, VISIT_WINDOW_DAYS)
 	};
+};
+
+export const actions: Actions = {
+	retryNote: async ({ locals, request, fetch }) => {
+		if (!locals.isAdmin) return fail(401);
+		const form = await request.formData();
+		const id = form.get('id')?.toString() || '';
+		if (!/^[a-f0-9-]{36}$/i.test(id)) return fail(400);
+		const db = await readReaderDB();
+		const note = db.rows.find((row) => row.kind === 'note' && row.id === id);
+		if (!note || note.kind !== 'note') return fail(404);
+		if (note.notification_status === 'sent') return { retried: true };
+
+		const title = readPosts().find((post) => post.slug === note.event)?.title || note.event;
+		const delivery = await notifyAboutPrivateNote({
+			name: note.name,
+			message: note.message,
+			path: note.path,
+			storyTitle: title
+		}, fetch);
+		await mutateReaderDB((current) => {
+			const row = current.rows.find((entry) => entry.kind === 'note' && entry.id === id);
+			if (row?.kind === 'note') {
+				row.notification_status = delivery.status;
+				row.notification_error = delivery.error;
+			}
+		});
+		return { retried: true };
+	}
 };

@@ -49,20 +49,40 @@ export type PrivateNoteInput = {
 	remoteIp?: string;
 };
 
-const notifyAboutPrivateNote = async (input: PrivateNoteInput, fetcher: typeof globalThis.fetch) => {
+type NoteNotification = Pick<PrivateNoteInput, 'name' | 'message' | 'path' | 'storyTitle'>;
+
+export const notifyAboutPrivateNote = async (input: NoteNotification, fetcher: typeof globalThis.fetch) => {
 	const sender = input.name.replace(/[\r\n]+/g, ' ').trim();
 	const storyTitle = input.storyTitle.replace(/[\r\n]+/g, ' ').trim();
-	const response = await fetcher(NTFY_NOTES_URL, {
-		method: 'POST',
-		headers: {
-			'content-type': 'text/plain; charset=utf-8',
-			'Title': `New blog note from ${sender}`,
-			'Tags': 'memo',
-			'Click': `https://blog.nickesselman.nl${input.path}`
-		},
-		body: [`Story: ${storyTitle}`, `From: ${sender}`, '', input.message].join('\n')
-	});
-	return response.ok;
+	let error = 'Unknown delivery error';
+	for (let attempt = 0; attempt < 3; attempt++) {
+		try {
+			const response = await fetcher(NTFY_NOTES_URL, {
+				method: 'POST',
+				headers: {
+					'content-type': 'text/plain; charset=utf-8',
+					'Title': 'New blog note',
+					'Tags': 'memo',
+					'Click': `https://blog.nickesselman.nl${input.path}`
+				},
+				body: [`Story: ${storyTitle}`, `From: ${sender}`, '', input.message].join('\n'),
+				signal: AbortSignal.timeout(8000)
+			});
+			if (response.ok) return { status: 'sent' as const };
+			error = `ntfy returned HTTP ${response.status}`;
+			if (response.status !== 429 && response.status < 500) break;
+		} catch (cause) {
+			const networkCause = cause instanceof Error && 'cause' in cause ? cause.cause : undefined;
+			const code = networkCause && typeof networkCause === 'object' && 'code' in networkCause
+				? String(networkCause.code)
+				: undefined;
+			error = cause instanceof Error
+				? `${cause.name}: ${cause.message}${code ? ` (${code})` : ''}`
+				: 'Network request failed';
+		}
+		if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+	}
+	return { status: 'failed' as const, error: error.slice(0, 200) };
 };
 
 export const savePrivateNote = async (input: PrivateNoteInput, fetcher: typeof globalThis.fetch) => {
@@ -75,17 +95,17 @@ export const savePrivateNote = async (input: PrivateNoteInput, fetcher: typeof g
 		db.rows.push({ kind: 'note', id, anon_id: input.anonId, event: input.event, path: input.path, name: input.name, message: input.message, notification_status: 'pending', created_at: createdAt });
 	});
 
-	let notificationStatus: 'sent' | 'failed' = 'failed';
-	try {
-		notificationStatus = (await notifyAboutPrivateNote(input, fetcher)) ? 'sent' : 'failed';
-	} catch {
-		console.error('Private blog note ntfy delivery failed', { noteId: id, event: input.event });
-	}
+	const delivery = await notifyAboutPrivateNote(input, fetcher);
+	if (delivery.status === 'failed')
+		console.error('Blog note ntfy delivery failed', { noteId: id, event: input.event, error: delivery.error });
 
 	await mutateReaderDB((db) => {
 		const row = db.rows.find((entry) => entry.kind === 'note' && entry.id === id);
-		if (row?.kind === 'note') row.notification_status = notificationStatus;
+		if (row?.kind === 'note') {
+			row.notification_status = delivery.status;
+			row.notification_error = delivery.error;
+		}
 	});
 
-	return { ok: true as const, notificationStatus };
+	return { ok: true as const, notificationStatus: delivery.status };
 };

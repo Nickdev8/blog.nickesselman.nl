@@ -60,7 +60,7 @@
 			storyEntries: 'Delen van het verhaal', earliest: 'Oudste', latest: 'Nieuwste', jump: 'Ga naar deel',
 			empty: 'Er zijn nog geen delen.', day: 'Dag', openMedia: 'Open media op volledig scherm', more: 'Meer van de reis',
 			related: 'Gerelateerde verhalen',
-			noteTitle: 'Laat een bericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven.',
+			noteTitle: 'Laat een bericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven. Je bericht wordt naar een openbaar ntfy-kanaal verstuurd; deel geen gevoelige informatie.',
 			noteThanks: 'Bedankt voor het lezen. Je bericht is opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur bericht', fullscreen: 'Media op volledig scherm'
 		}
 		: {
@@ -69,7 +69,7 @@
 			storyEntries: 'Story entries', earliest: 'Earliest', latest: 'Latest', jump: 'Jump to entry',
 			empty: 'No entries just yet.', day: 'Day', openMedia: 'Open media fullscreen', more: 'More from the trip',
 			related: 'Related stories',
-			noteTitle: 'Leave me a note', noteIntro: 'Tell me you were here, or share what stayed with you.',
+			noteTitle: 'Leave me a note', noteIntro: 'Tell me you were here, or share what stayed with you. Notes go to a public ntfy topic, so please avoid sensitive details.',
 			noteThanks: 'Thanks for reading. Your note was saved.', name: 'Your name', note: 'Your note', send: 'Send note', fullscreen: 'Fullscreen media'
 		};
 
