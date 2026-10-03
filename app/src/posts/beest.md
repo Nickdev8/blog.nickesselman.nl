@@ -11,6 +11,9 @@ title: "Day 1: Building a Beest"
 date: "2026-08-19"
 ---
 
+![](/blogimages/beest/ikbuildingbeest.jpg)
+
+
 ## A Very Last-Minute Event
 
 I wasn't really supposed to be at this event.
