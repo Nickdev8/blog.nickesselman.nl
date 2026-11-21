@@ -88,27 +88,25 @@ const buildAssetPayload = (key: string, assets: ImmichAsset[], allowDownload: bo
 	});
 };
 
-const fetchImmichJson = async <T>(requestFetch: typeof fetch, url: string): Promise<T> => {
-	const response = await requestFetch(url, { redirect: 'error', signal: AbortSignal.timeout(8_000) });
-	if (!response.ok) throw new Error(`Immich returned ${response.status}.`);
+const fetchImmichJson = async <T>(url: string): Promise<T> => {
+	// SvelteKit's request fetch adds a cross-origin Origin header that Immich rejects.
+	const response = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(8_000) });
+	if (!response.ok) {
+		console.warn('Immich gallery upstream response:', new URL(url).pathname, response.status);
+		throw new Error(`Immich returned ${response.status}.`);
+	}
 	return response.json();
 };
 
-const loadTimelineAssets = async (
-	requestFetch: typeof fetch,
-	albumId: string,
-	key: string
-): Promise<ImmichAsset[]> => {
+const loadTimelineAssets = async (albumId: string, key: string): Promise<ImmichAsset[]> => {
 	const params = new URLSearchParams({ albumId, key });
 	const buckets = await fetchImmichJson<{ timeBucket: string }[]>(
-		requestFetch,
 		`${IMMICH_ORIGIN}/api/timeline/buckets?${params}`
 	);
 	const assets: ImmichAsset[] = [];
 	for (const { timeBucket } of buckets) {
 		params.set('timeBucket', timeBucket);
 		const bucket = await fetchImmichJson<ImmichTimelineBucket>(
-			requestFetch,
 			`${IMMICH_ORIGIN}/api/timeline/bucket?${params}`
 		);
 		assets.push(...bucket.id.map((id, index) => ({
@@ -119,7 +117,7 @@ const loadTimelineAssets = async (
 	return assets;
 };
 
-export const GET: RequestHandler = async ({ url, fetch }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const shareUrl = url.searchParams.get('shareUrl');
 
 	if (!shareUrl) {
@@ -146,7 +144,6 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 	try {
 		const sharedLink = await fetchImmichJson<ImmichSharedLinkResponse>(
-			fetch,
 			`${IMMICH_ORIGIN}/api/shared-links/me?${params}`
 		);
 		const shareKey = sharedLink.key || keyFromPath;
@@ -160,13 +157,12 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 		if (assets.length === 0 && sharedLink.type === 'ALBUM' && sharedLink.album?.id) {
 			const albumId = sharedLink.album.id;
 			const album = await fetchImmichJson<ImmichAlbumResponse>(
-				fetch,
 				`${IMMICH_ORIGIN}/api/albums/${encodeURIComponent(albumId)}?key=${encodeURIComponent(shareKey)}`
 			);
 			// Older versions include assets with the album. Newer versions list them in the timeline.
 			assets = album.assets ?? [];
 			if (!assets.length && (album.assetCount ?? 0) > 0) {
-				assets = await loadTimelineAssets(fetch, albumId, shareKey);
+				assets = await loadTimelineAssets(albumId, shareKey);
 			}
 		}
 
