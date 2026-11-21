@@ -86,7 +86,6 @@
 	const coverImageDimensions = cdnImageDimensions(coverImageSrc);
 	const coverImageSrcset = cdnImageSrcset(coverImageSrc);
 	const coverMobileSrc = cdnImageVariant(coverImageSrc, 480);
-	const immichAlbum = data.immichAlbum;
 	const banner = data.banner;
 
 	const datedPosts = data.posts.map((post) => ({ ...post, timestamp: new Date(post.date).getTime() }));
@@ -353,12 +352,14 @@
 			</section>
 		{/if}
 
-		<ImmichGallery
-			shareUrl={immichAlbum}
-			initialAssets={data.galleryAssets || []}
-			title={readableTitle}
-			locale={data.locale}
-		/>
+		{#key data.event}
+			<ImmichGallery
+				shareUrl={data.immichAlbum}
+				initialAssets={data.galleryAssets || []}
+				title={data.title}
+				locale={data.locale}
+			/>
+		{/key}
 
 		<section class="site-container mt-16 border-t border-[#d8d2c7] pt-10" aria-labelledby="reader-note">
 			<div class="max-w-2xl">

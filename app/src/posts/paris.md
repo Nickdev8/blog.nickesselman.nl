@@ -5,6 +5,7 @@ coverImage: "/blogimages/paris/cover.jpg"
 sort_order: 'asc'
 timezone: Europe/Amsterdam
 timezone_label: Paris
+immichAlbum: "https://photos.nickesselman.nl/s/paris2026blogpublic2"
 ---
 ---
 title: "Day 1: A Good Start"

@@ -125,6 +125,13 @@
 	const closeFullscreen = () => {
 		fullscreenAsset = null;
 	};
+
+	const showFullscreenPreview = (event: Event) => {
+		const image = event.currentTarget as HTMLImageElement;
+		if (fullscreenAsset && image.getAttribute('src') !== fullscreenAsset.previewUrl) {
+			image.src = fullscreenAsset.previewUrl;
+		}
+	};
 </script>
 
 {#if valid}
@@ -196,6 +203,7 @@
 				{:else}
 					<img
 						src={fullscreenAsset.originalUrl || fullscreenAsset.previewUrl}
+						on:error={showFullscreenPreview}
 						alt={fullscreenAsset.alt}
 						class="h-auto max-h-[90vh] w-auto max-w-[95vw]"
 						loading="eager"
