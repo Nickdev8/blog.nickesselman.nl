@@ -14,20 +14,36 @@ type ImmichAsset = {
 
 type ImmichSharedLinkResponse = {
 	key?: string;
-	slug?: string | null;
 	type: 'ALBUM' | 'INDIVIDUAL' | string;
+	allowDownload?: boolean;
 	album?: { id: string } | null;
 	assets?: ImmichAsset[];
 };
 
 type ImmichAlbumResponse = {
 	assets?: ImmichAsset[];
+	assetCount?: number;
+};
+
+type ImmichTimelineBucket = {
+	id: string[];
+	isImage: boolean[];
 };
 
 const invalidResponse = () => json({ error: 'Unable to load Immich data.' }, { status: 502 });
+const IMMICH_ORIGIN = 'https://photos.nickesselman.nl';
 
 const extractShareParams = (shareUrl: string) => {
 	const parsed = new URL(shareUrl);
+	if (
+		parsed.hostname !== new URL(IMMICH_ORIGIN).hostname ||
+		!['http:', 'https:'].includes(parsed.protocol) ||
+		parsed.port ||
+		parsed.username ||
+		parsed.password
+	) {
+		throw new Error('Unsupported Immich origin.');
+	}
 	const segments = parsed.pathname.split('/').filter(Boolean);
 
 	let slug: string | undefined;
@@ -42,22 +58,27 @@ const extractShareParams = (shareUrl: string) => {
 	}
 
 	return {
-		origin: parsed.origin,
 		slug,
 		key,
 	};
 };
 
-const buildAssetPayload = (origin: string, key: string, assets: ImmichAsset[]) => {
+const buildAssetPayload = (key: string, assets: ImmichAsset[], allowDownload: boolean) => {
 	return assets.map((asset) => {
 		const query = `key=${encodeURIComponent(key)}`;
-		const previewUrl = `${origin}/api/assets/${asset.id}/thumbnail?${query}&size=preview`;
-		const originalUrl = `${origin}/api/assets/${asset.id}/original?${query}`;
+		const assetUrl = `${IMMICH_ORIGIN}/api/assets/${encodeURIComponent(asset.id)}`;
+		const previewUrl = `${assetUrl}/thumbnail?${query}&size=preview`;
+		const isVideo = asset.type === 'VIDEO';
+		const originalUrl = isVideo
+			? `${assetUrl}/video/playback?${query}`
+			: allowDownload
+				? `${assetUrl}/original?${query}`
+				: previewUrl;
 
 		return {
 			id: asset.id,
 			type: asset.type,
-			isVideo: asset.type === 'VIDEO',
+			isVideo,
 			alt: asset.exifInfo?.description || asset.originalFileName || 'Immich media',
 			width: asset.exifInfo?.exifImageWidth ?? null,
 			height: asset.exifInfo?.exifImageHeight ?? null,
@@ -65,6 +86,37 @@ const buildAssetPayload = (origin: string, key: string, assets: ImmichAsset[]) =
 			originalUrl
 		};
 	});
+};
+
+const fetchImmichJson = async <T>(requestFetch: typeof fetch, url: string): Promise<T> => {
+	const response = await requestFetch(url, { redirect: 'error', signal: AbortSignal.timeout(8_000) });
+	if (!response.ok) throw new Error(`Immich returned ${response.status}.`);
+	return response.json();
+};
+
+const loadTimelineAssets = async (
+	requestFetch: typeof fetch,
+	albumId: string,
+	key: string
+): Promise<ImmichAsset[]> => {
+	const params = new URLSearchParams({ albumId, key });
+	const buckets = await fetchImmichJson<{ timeBucket: string }[]>(
+		requestFetch,
+		`${IMMICH_ORIGIN}/api/timeline/buckets?${params}`
+	);
+	const assets: ImmichAsset[] = [];
+	for (const { timeBucket } of buckets) {
+		params.set('timeBucket', timeBucket);
+		const bucket = await fetchImmichJson<ImmichTimelineBucket>(
+			requestFetch,
+			`${IMMICH_ORIGIN}/api/timeline/bucket?${params}`
+		);
+		assets.push(...bucket.id.map((id, index) => ({
+			id,
+			type: bucket.isImage[index] ? 'IMAGE' : 'VIDEO'
+		})));
+	}
+	return assets;
 };
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
@@ -81,7 +133,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 		return json({ error: 'Invalid share URL provided.' }, { status: 400 });
 	}
 
-	const { origin, slug, key: keyFromPath } = parsedShare;
+	const { slug, key: keyFromPath } = parsedShare;
 	const params = new URLSearchParams();
 
 	if (slug) {
@@ -93,12 +145,10 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 	}
 
 	try {
-		const sharedLinkResponse = await fetch(`${origin}/api/shared-links/me?${params.toString()}`);
-		if (!sharedLinkResponse.ok) {
-			return invalidResponse();
-		}
-
-		const sharedLink: ImmichSharedLinkResponse = await sharedLinkResponse.json();
+		const sharedLink = await fetchImmichJson<ImmichSharedLinkResponse>(
+			fetch,
+			`${IMMICH_ORIGIN}/api/shared-links/me?${params}`
+		);
 		const shareKey = sharedLink.key || keyFromPath;
 
 		if (!shareKey) {
@@ -107,24 +157,24 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
 		let assets: ImmichAsset[] = sharedLink.assets || [];
 
-		if ((!assets || assets.length === 0) && sharedLink.type === 'ALBUM' && sharedLink.album?.id) {
-			const albumResponse = await fetch(
-				`${origin}/api/albums/${sharedLink.album.id}?key=${encodeURIComponent(shareKey)}`
+		if (assets.length === 0 && sharedLink.type === 'ALBUM' && sharedLink.album?.id) {
+			const albumId = sharedLink.album.id;
+			const album = await fetchImmichJson<ImmichAlbumResponse>(
+				fetch,
+				`${IMMICH_ORIGIN}/api/albums/${encodeURIComponent(albumId)}?key=${encodeURIComponent(shareKey)}`
 			);
-
-			if (!albumResponse.ok) {
-				return invalidResponse();
+			// Older versions include assets with the album. Newer versions list them in the timeline.
+			assets = album.assets ?? [];
+			if (!assets.length && (album.assetCount ?? 0) > 0) {
+				assets = await loadTimelineAssets(fetch, albumId, shareKey);
 			}
-
-			const album: ImmichAlbumResponse = await albumResponse.json();
-			assets = album.assets || [];
 		}
 
-		const payload = buildAssetPayload(origin, shareKey, assets);
+		const payload = buildAssetPayload(shareKey, assets, sharedLink.allowDownload !== false);
 
 		return json({ assets: payload });
 	} catch (error) {
-		console.error('Immich proxy error:', error);
+		console.error('Immich gallery lookup failed:', error instanceof Error ? error.name : 'Unknown error');
 		return invalidResponse();
 	}
 };

@@ -108,7 +108,12 @@
 					<form method="post" action="/admin?/save" class="editor__form">
 						<input type="hidden" name="slug" value={data.selectedSlug} />
 						<label for="content">Markdown</label>
-						<textarea id="content" name="content" rows="24" required>{data.content}</textarea>
+						<p id="immich-album-help" class="text-sm">
+							For an optional Immich gallery, add
+							<code class="break-all">immichAlbum: "https://photos.nickesselman.nl/s/your-share-slug"</code>
+							between the first two <code>---</code> lines. Use your album’s public share link.
+						</p>
+						<textarea id="content" name="content" rows="24" aria-describedby="immich-album-help" required>{data.content}</textarea>
 						<div class="editor__actions">
 							<button type="submit">Save changes</button>
 						</div>

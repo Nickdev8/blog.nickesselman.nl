@@ -155,7 +155,8 @@ export const actions: Actions = {
 };
 
 const normalizeImages = async (input: string) => {
-	let output = input.replace(/!\[([^\]]*)\]\(([^)]+)\)\{[^}]*\}/g, '![$1]($2)');
+	const frontmatter = input.match(/^---[ 	]*\r?\n[\s\S]*?\r?\n---[ 	]*(?:\r?\n|$)/)?.[0] || '';
+	let output = input.slice(frontmatter.length).replace(/!\[([^\]]*)\]\(([^)]+)\)\{[^}]*\}/g, '![$1]($2)');
 
 	const shareRegex = /https?:\/\/photos\.nickesselman\.nl\/share\/([A-Za-z0-9_-]+)/gi;
 	const shares = new Set<string>();
@@ -176,7 +177,7 @@ const normalizeImages = async (input: string) => {
 		return `![Immich photo](${url})`;
 	});
 
-	return output;
+	return frontmatter + output;
 };
 
 const resolveImmichShare = async (shareLink: string): Promise<string | null> => {

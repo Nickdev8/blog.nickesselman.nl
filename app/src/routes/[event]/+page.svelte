@@ -60,7 +60,7 @@
 			storyEntries: 'Delen van het verhaal', earliest: 'Oudste', latest: 'Nieuwste', jump: 'Ga naar deel',
 			empty: 'Er zijn nog geen delen.', day: 'Dag', openMedia: 'Open media op volledig scherm', more: 'Meer van de reis',
 			related: 'Gerelateerde verhalen',
-			noteTitle: 'Laat een bericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven. Je bericht wordt naar een openbaar ntfy-kanaal verstuurd; deel geen gevoelige informatie.',
+			noteTitle: 'Laat een bericht achter', noteIntro: 'Vertel me wat je ervan vond. Je bericht blijft privé en wordt niet gepubliceerd.',
 			noteThanks: 'Bedankt voor het lezen. Je bericht is opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur bericht', fullscreen: 'Media op volledig scherm'
 		}
 		: {
@@ -69,7 +69,7 @@
 			storyEntries: 'Story entries', earliest: 'Earliest', latest: 'Latest', jump: 'Jump to entry',
 			empty: 'No entries just yet.', day: 'Day', openMedia: 'Open media fullscreen', more: 'More from the trip',
 			related: 'Related stories',
-			noteTitle: 'Leave me a note', noteIntro: 'Tell me you were here, or share what stayed with you. Notes go to a public ntfy topic, so please avoid sensitive details.',
+			noteTitle: 'Leave me a note', noteIntro: "Tell me what you thought. Sending is private and won't be published.",
 			noteThanks: 'Thanks for reading. Your note was saved.', name: 'Your name', note: 'Your note', send: 'Send note', fullscreen: 'Fullscreen media'
 		};
 
@@ -86,7 +86,6 @@
 	const coverImageDimensions = cdnImageDimensions(coverImageSrc);
 	const coverImageSrcset = cdnImageSrcset(coverImageSrc);
 	const coverMobileSrc = cdnImageVariant(coverImageSrc, 480);
-	const immichAlbum = data.immichAlbum;
 	const banner = data.banner;
 
 	const datedPosts = data.posts.map((post) => ({ ...post, timestamp: new Date(post.date).getTime() }));
@@ -353,12 +352,14 @@
 			</section>
 		{/if}
 
-		<ImmichGallery
-			shareUrl={immichAlbum}
-			initialAssets={data.galleryAssets || []}
-			title={readableTitle}
-			locale={data.locale}
-		/>
+		{#key data.event}
+			<ImmichGallery
+				shareUrl={data.immichAlbum}
+				initialAssets={data.galleryAssets || []}
+				title={data.title}
+				locale={data.locale}
+			/>
+		{/key}
 
 		<section class="site-container mt-16 border-t border-[#d8d2c7] pt-10" aria-labelledby="reader-note">
 			<div class="max-w-2xl">
