@@ -69,7 +69,7 @@
 			storyEntries: 'Story entries', earliest: 'Earliest', latest: 'Latest', jump: 'Jump to entry',
 			empty: 'No entries just yet.', day: 'Day', openMedia: 'Open media fullscreen', more: 'More from the trip',
 			related: 'Related stories',
-			noteTitle: 'Leave me a note', noteIntro: 'Tell me you were here, or share what stayed with you. Notes go to a public ntfy topic, so please avoid sensitive details.',
+			noteTitle: 'Leave me a note', noteIntro: "Tell me what you thought. Sending is private and won't be published.",
 			noteThanks: 'Thanks for reading. Your note was saved.', name: 'Your name', note: 'Your note', send: 'Send note', fullscreen: 'Fullscreen media'
 		};
 
