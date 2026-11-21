@@ -67,7 +67,8 @@ const buildAssetPayload = (key: string, assets: ImmichAsset[], allowDownload: bo
 	return assets.map((asset) => {
 		const query = `key=${encodeURIComponent(key)}`;
 		const assetUrl = `${IMMICH_ORIGIN}/api/assets/${encodeURIComponent(asset.id)}`;
-		const previewUrl = `${assetUrl}/thumbnail?${query}&size=preview`;
+		const imageUrl = `${assetUrl}/thumbnail?${query}`;
+		const previewUrl = `${imageUrl}&size=preview`;
 		const isVideo = asset.type === 'VIDEO';
 		const originalUrl = isVideo
 			? `${assetUrl}/video/playback?${query}`
@@ -82,6 +83,7 @@ const buildAssetPayload = (key: string, assets: ImmichAsset[], allowDownload: bo
 			alt: asset.exifInfo?.description || asset.originalFileName || 'Immich media',
 			width: asset.exifInfo?.exifImageWidth ?? null,
 			height: asset.exifInfo?.exifImageHeight ?? null,
+			thumbnailUrl: `${imageUrl}&size=thumbnail`,
 			previewUrl,
 			originalUrl
 		};
