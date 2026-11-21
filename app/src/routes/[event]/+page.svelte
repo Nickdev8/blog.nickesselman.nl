@@ -60,7 +60,7 @@
 			storyEntries: 'Delen van het verhaal', earliest: 'Oudste', latest: 'Nieuwste', jump: 'Ga naar deel',
 			empty: 'Er zijn nog geen delen.', day: 'Dag', openMedia: 'Open media op volledig scherm', more: 'Meer van de reis',
 			related: 'Gerelateerde verhalen',
-			noteTitle: 'Laat een bericht achter', noteIntro: 'Laat weten dat je hier was, of deel wat je is bijgebleven. Je bericht wordt naar een openbaar ntfy-kanaal verstuurd; deel geen gevoelige informatie.',
+			noteTitle: 'Laat een bericht achter', noteIntro: 'Vertel me wat je ervan vond. Je bericht blijft privé en wordt niet gepubliceerd.',
 			noteThanks: 'Bedankt voor het lezen. Je bericht is opgeslagen.', name: 'Je naam', note: 'Je bericht', send: 'Verstuur bericht', fullscreen: 'Media op volledig scherm'
 		}
 		: {
