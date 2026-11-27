@@ -6,7 +6,7 @@ import { mutateReaderDB } from '$lib/server/readerStore';
 const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
 const TURNSTILE_TEST_SECRET_KEY = '1x0000000000000000000000000000000AA';
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
-const NTFY_NOTES_URL = 'https://ntfy.sh/blognickesselmannotes';
+const DEFAULT_NTFY_NOTES_URL = 'https://ntfy.nickesselman.nl/blognickesselmannotes';
 
 export const getTurnstileSiteKey = () =>
 	dev ? TURNSTILE_TEST_SITE_KEY : publicEnv.PUBLIC_TURNSTILE_SITE_KEY || '';
@@ -57,12 +57,13 @@ export const notifyAboutPrivateNote = async (input: NoteNotification, fetcher: t
 	let error = 'Unknown delivery error';
 	for (let attempt = 0; attempt < 3; attempt++) {
 		try {
-			const response = await fetcher(NTFY_NOTES_URL, {
+			const response = await fetcher(privateEnv.NTFY_NOTES_URL?.trim() || DEFAULT_NTFY_NOTES_URL, {
 				method: 'POST',
 				headers: {
 					'content-type': 'text/plain; charset=utf-8',
 					'Title': 'New blog note',
 					'Tags': 'memo',
+					...(privateEnv.NTFY_TOKEN?.trim() ? { Authorization: `Bearer ${privateEnv.NTFY_TOKEN.trim()}` } : {}),
 					'Click': `https://blog.nickesselman.nl${input.path}`
 				},
 				body: [`Story: ${storyTitle}`, `From: ${sender}`, '', input.message].join('\n'),

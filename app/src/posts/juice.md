@@ -9,6 +9,7 @@ sort_order: 'asc'
 live: false
 timezone: Asia/Shanghai
 timezone_label: Shanghai
+immichAlbum: "https://photos.nickesselman.nl/s/blogofchinaverylongtimeago"
 ---
 ---
 title: "One Week to Pour It All Out"
